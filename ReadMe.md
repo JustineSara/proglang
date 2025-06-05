@@ -26,6 +26,11 @@ clj -X:test
 ```
 to run the tests
 
+```
+clj -X main/run
+```
+run the `run` function of `main` namespace. It currenlty takes no input. input should be a list of keys and values that are passed as a map to the clojure function (I think).
+
 ## Project organisation
 
 Folders:
