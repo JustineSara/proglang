@@ -8,6 +8,7 @@ pkgs.mkShell {
   buildInputs = with pkgs; [
     bash
     curl
+    clojure
     jq
   ];
 }
