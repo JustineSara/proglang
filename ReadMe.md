@@ -58,3 +58,7 @@ becomes
 ```
 [:S [:A [:M [:D "2"] [:D "1"]] [:D "1"]]]
 ```
+
+### Step 2
+
+**Goal**: add the maths-parenthesis (priority of operations) to the grammar.
