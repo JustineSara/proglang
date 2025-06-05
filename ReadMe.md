@@ -64,3 +64,8 @@ becomes
 **Goal**: add the maths-parenthesis (priority of operations) to the grammar.
 
 **Solution**: I define the piece of grammar `Ap` (resp. `Mp`) for addition with parenthesis (resp. multiplication), which are easily defined from `A` (resp. `M`) then we use the angle brackets `<Ap>` so the tag does not appear in the results.
+
+### Step 3 : eval
+
+**Goal**: turn the tree into a value.
+
