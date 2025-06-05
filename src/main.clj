@@ -13,6 +13,15 @@
     W = #' '
     "))
 
+(defn opeeval
+  [txt]
+  (let [tree (ope txt)]
+    (insta/transform {:D (fn [x] (parse-double x))
+                      :A (fn [x & r] (apply + x r))
+                      :M (fn [x & r] (apply * x r))
+                      :S (fn [x] x)}
+                     tree)))
+
 (defn run
   [opts]
   (print "Hello World!"))
