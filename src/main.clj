@@ -3,9 +3,10 @@
 
 (def ope
   (insta/parser
-    "S = A ('+' A)*
-    A = D | (D ('*' D)*)
+    "S = A <W*> ('+' <W*> A)*
+    A = D <W*> ('*' <W*> D)*
     D = #'\\d+'
+    W = #' '
     "))
 
 (defn run
