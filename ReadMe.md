@@ -21,6 +21,10 @@ $ clj
 ```
 to start a repl where you can require the librairies or namespaces defined in `src`
 
+```
+clj -X:test
+```
+to run the tests
 
 ## Project organisation
 
