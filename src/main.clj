@@ -3,9 +3,11 @@
 
 (def ope
   (insta/parser
-    "S = A|M|D
-    A = (D|M) <W*> (<'+'> <W*> (D|M))+
-    M = D <W*> (<'*'> <W*> D)+
+    "S = A|M|D|Ap|Mp
+    <Ap> = <'('> A <')'>
+    A = (D|M|Mp|Ap) <W*> (<'+'> <W*> (D|M|Mp|Ap))+
+    M = (D|Mp|Ap) <W*> (<'*'> <W*> (D|Ap|Mp))+
+    <Mp> = <'('> M <')'>
     D = #'\\d+'
     W = #' '
     "))
