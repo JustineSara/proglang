@@ -8,3 +8,5 @@
     A = 'a'+
     B = 'b'+"))
 
+(comment
+  (as-and-bs "aaaabb"))
