@@ -48,3 +48,13 @@ Folders:
 
 **Goal**: code the grammar part. The input is an instruction string, the output is a tree representing the instruction. We are limiting this to additions and multiplications (which should be computed in the order expected form conventional maths, no parenthesis) and to integers.
 
+**Results**: (see `step1` in `test`) a string with "+" and "\*" are now turned into a tree that is nested vectors where `:S` is the whole thing `:A` is for additions between all members of the current vector and `:M` is the same but with multiplication. The :D tag means it is an integer.
+
+For example:
+```
+"2*1 +1"
+```
+becomes
+```
+[:S [:A [:M [:D "2"] [:D "1"]] [:D "1"]]]
+```
