@@ -40,3 +40,11 @@ Folders:
 - `shell.nix`: the file where you can add dependencies like `Clojure`
 - `src`: where the clojure files are
     - `hello_instaparse.clj`: testing `instaparse` is usable
+    - `main.clj`: where I code the project
+
+## Steps
+
+### Step 1
+
+**Goal**: code the grammar part. The input is an instruction string, the output is a tree representing the instruction. We are limiting this to additions and multiplications (which should be computed in the order expected form conventional maths, no parenthesis) and to integers.
+
