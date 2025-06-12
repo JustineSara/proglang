@@ -27,14 +27,31 @@ clj -X:test
 to run the tests
 
 ```
+clj -M -m main
+```
+run the `-main` function of `main` namespace. At this point it only prints a hello message
+
+```
 clj -X main/run
 ```
-run the `run` function of `main` namespace. It currenlty takes no input. input should be a list of keys and values that are passed as a map to the clojure function (I think).
+run the `run` function of `main` namspace, which currently is a shell for our language (step4).
+
+```
+clj -T:build uberjar
+```
+creates the file `target/proglang.jar` which can be distributed.
+
+```
+clj -T:build clean
+```
+clean up the build.
+
 
 ## Project organisation
 
 Folders:
 - `bin`: storing useful piece of bech code
+- `build.clj`: code to build the `.jar` for our project
 - `deps.edn`: where we list clojure dependencies, paths and aliases
 - `nix`: nix stuff
 - `shell.nix`: the file where you can add dependencies like `Clojure`
@@ -84,3 +101,5 @@ becomes
 ### Step 4.2 : read code from file
 
 **Goal**: we want to be able to run programs from a file.
+
+**Part 1**: we set up a way to build the program with `build.clj` and the command line `clj -T:build uberjar`

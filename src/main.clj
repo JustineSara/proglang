@@ -41,3 +41,7 @@
                   (str " " outp "\n"))]
         (print mss)
         (recur (= outp :stop))))))
+
+(defn -main
+  [& args]
+  (println "Hello from main!"))
