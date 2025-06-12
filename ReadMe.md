@@ -119,3 +119,5 @@ becomes
 ### Step 7: assignement
 
 **Goal**: be able to do `a=1` and then `2*a` and get `2`.
+
+**Part 1**: add to the grammar so we accept `a=1`. (not doing anything with it for now).

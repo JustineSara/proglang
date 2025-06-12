@@ -6,16 +6,21 @@
 
 (def ope
   (insta/parser
-    "S = <nl>* (exp|Q) (<nl>+ (exp|Q))* <nl>*
-    exp = A|M|D|Dp|Ap|Mp
+    "S = <nl>* sttmt (<nl>+ sttmt)* <nl>*
+    <sttmt> = exp | assign | Q
+    assign = name <W*> <'='> <W*> exp
+    exp = A|M|D|Dp|Ap|Mp|name
     <Ap> = <'('> A <')'>
-    A = (D|Dp|M|Mp|Ap) <W*> (<'+'> <W*> (D|Dp|M|Mp|Ap))+
-    M = (D|Dp|Mp|Ap) <W*> (<'*'> <W*> (D|Dp|Ap|Mp))+
     <Mp> = <'('> M <')'>
     <Dp> = <'('> D <')'>
+    <namep> = <'('> name <')'>
+    A = (elem|M|Mp|Ap) <W*> (<'+'> <W*> (elem|M|Mp|Ap))+
+    M = (elem|Mp|Ap) <W*> (<'*'> <W*> (elem|Ap|Mp))+
     D = #'\\d+'
+    elem = D | Dp | name | namep
     W = #' '
     Q = 'quit!'|'q!'
+    name = #'[a-zA-Z]\\w*'
     <nl> = '\n'
     "))
 
