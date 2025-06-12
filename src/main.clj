@@ -41,7 +41,7 @@
       (let [_ (print "> ")
             _ (flush)
             inp (read-line)
-            outp (opeeval inp)
+            outp (last (opeeval inp))
             mss (case (first outp)
                   :stop "\nBye!!\n"
                   :result (str " " (second outp) "\n")
