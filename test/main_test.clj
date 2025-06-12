@@ -27,7 +27,7 @@
     "(2)+2" [:S [:exp [:A [:D "2"] [:D "2"]]]]))
 
 (deftest step3
-  (are [text res] (= res (m/opeeval text))
+  (are [text res] (= res (last (m/opeeval text)))
     "2*1+1" [:result 3]
     "2*(1+1)" [:result 4]
     "(1+1)*(2+1+1)" [:result 8]
@@ -37,4 +37,4 @@
 
 (deftest step6
   (are [text res] (= res (m/opeeval text))
-    "2+2\n3+3" [:result 6]))
+    "2+2\n3+3" [[:result 4] [:result 6]]))

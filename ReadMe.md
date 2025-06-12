@@ -27,14 +27,19 @@ clj -X:test
 to run the tests
 
 ```
-clj -M -m main
+clj -M -m main [file]
 ```
-run the `-main` function of `main` namespace. At this point it only prints a hello message
+run the `-main` function of `main` namespace. with no argument it starts a shell. With one argument, it reads a file and run the program in the file.
 
 ```
 clj -T:build uberjar
 ```
 creates the file `target/proglang.jar` which can be distributed.
+
+```
+java -jar target/proglang.jar
+```
+to run the progang program / uberjar.
 
 ```
 clj -T:build clean
@@ -108,3 +113,5 @@ becomes
 **Goal**: handle multiline programs through the grammar.
 
 **Part 1**: modify the grammar and tree-making to add the new-line and disctinction between expression and statement (currently not there appart from the quitcommand).
+
+**Part 2**: make it work for running a file: need to account for the last newline at the end of the file. Note that currently empty lines makes everything fail. Also removed the options as they are not relevant anymore.
