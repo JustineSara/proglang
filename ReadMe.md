@@ -69,3 +69,4 @@ becomes
 
 **Goal**: turn the tree into a value.
 
+**Solution**: I built `opeeval` which has a `string` input and outputs an `int` that is the result of the operation. It is built using the previous steps. We use `edn/read-string` rather than `parse-long` to stay within `int` format.
