@@ -16,7 +16,7 @@
     D = #'\\d+'
     W = #' '
     Q = 'quit!'|'q!'
-    lastline = '\\n' Epsilon
+    lastline = '\\n'
     "))
 
 (defn opeeval
