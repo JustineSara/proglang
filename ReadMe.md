@@ -74,3 +74,7 @@ becomes
 ### Step 4 : shell
 
 **Goal**: create a shell so a user can write operations and have the result.
+
+**Solution - part 1**: in the main function called `run` we create a loop that takes the user input, run it through our eval and then print the result. To start the program, use the command line `clj -X main/run`.
+
+**But**: for the moment, we can quit the program by `ctr+c` which actually stop the whole clojure. Let's add an offical command to stop it so our loop is not quite infinite.
