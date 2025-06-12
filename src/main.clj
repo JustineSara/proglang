@@ -1,5 +1,6 @@
 (ns main
-  (:require [instaparse.core :as insta]))
+  (:require [instaparse.core :as insta]
+            [clojure.edn :as edn]))
 
 (def ope
   (insta/parser
@@ -12,6 +13,15 @@
     D = #'\\d+'
     W = #' '
     "))
+
+(defn opeeval
+  [txt]
+  (let [tree (ope txt)]
+    (insta/transform {:D (fn [x] (edn/read-string x))
+                      :A (fn [x & r] (apply + x r))
+                      :M (fn [x & r] (apply * x r))
+                      :S (fn [x] x)}
+                     tree)))
 
 (defn run
   [opts]

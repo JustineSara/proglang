@@ -64,3 +64,9 @@ becomes
 **Goal**: add the maths-parenthesis (priority of operations) to the grammar.
 
 **Solution**: I define the piece of grammar `Ap` (resp. `Mp`) for addition with parenthesis (resp. multiplication), which are easily defined from `A` (resp. `M`) then we use the angle brackets `<Ap>` so the tag does not appear in the results.
+
+### Step 3 : eval
+
+**Goal**: turn the tree into a value.
+
+**Solution**: I built `opeeval` which has a `string` input and outputs an `int` that is the result of the operation. It is built using the previous steps. We use `edn/read-string` rather than `parse-long` to stay within `int` format.
