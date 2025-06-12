@@ -70,3 +70,13 @@ becomes
 **Goal**: turn the tree into a value.
 
 **Solution**: I built `opeeval` which has a `string` input and outputs an `int` that is the result of the operation. It is built using the previous steps. We use `edn/read-string` rather than `parse-long` to stay within `int` format.
+
+### Step 4 : shell
+
+**Goal**: create a shell so a user can write operations and have the result.
+
+**Solution - part 1**: in the main function called `run` we create a loop that takes the user input, run it through our eval and then print the result. To start the program, use the command line `clj -X main/run`.
+
+**But**: for the moment, we can quit the program by `ctr+c` which actually stop the whole clojure. Let's add an offical command to stop it so our loop is not quite infinite.
+
+**Solution - part 2**: we add to the grammar so the commands `q!` and `quit!` are recognised, then the tree is also adapted and we have a branching in the main program so that it knows what to do with this new possible output (not printing it).
