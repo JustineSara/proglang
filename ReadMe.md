@@ -80,3 +80,7 @@ becomes
 **But**: for the moment, we can quit the program by `ctr+c` which actually stop the whole clojure. Let's add an offical command to stop it so our loop is not quite infinite.
 
 **Solution - part 2**: we add to the grammar so the commands `q!` and `quit!` are recognised, then the tree is also adapted and we have a branching in the main program so that it knows what to do with this new possible output (not printing it).
+
+### Step 4.2 : read code from file
+
+**Goal**: we want to be able to run programs from a file.
