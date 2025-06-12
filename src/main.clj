@@ -6,7 +6,7 @@
 
 (def ope
   (insta/parser
-    "S = (exp|Q) (<'\\n'> (exp|Q))* <lastline>?
+    "S = <nl>* (exp|Q) (<nl>+ (exp|Q))* <nl>*
     exp = A|M|D|Dp|Ap|Mp
     <Ap> = <'('> A <')'>
     A = (D|Dp|M|Mp|Ap) <W*> (<'+'> <W*> (D|Dp|M|Mp|Ap))+
@@ -16,7 +16,7 @@
     D = #'\\d+'
     W = #' '
     Q = 'quit!'|'q!'
-    lastline = '\\n'
+    <nl> = '\n'
     "))
 
 (defn opeeval
