@@ -106,3 +106,5 @@ becomes
 ### Step 6 : handle multiline program
 
 **Goal**: handle multiline programs through the grammar.
+
+**Part 1**: modify the grammar and tree-making to add the new-line and disctinction between expression and statement (currently not there appart from the quitcommand).

@@ -6,7 +6,8 @@
 
 (def ope
   (insta/parser
-    "S = A|M|D|Dp|Ap|Mp|Q
+    "S = (exp|Q) (<'\\n'> (exp|Q))*
+    exp = A|M|D|Dp|Ap|Mp
     <Ap> = <'('> A <')'>
     A = (D|Dp|M|Mp|Ap) <W*> (<'+'> <W*> (D|Dp|M|Mp|Ap))+
     M = (D|Dp|Mp|Ap) <W*> (<'*'> <W*> (D|Dp|Ap|Mp))+
@@ -20,11 +21,13 @@
 (defn opeeval
   [txt]
   (let [tree (ope txt)]
-    (insta/transform {:D (fn [x] (edn/read-string x))
-                      :A (fn [x & r] (apply + x r))
-                      :M (fn [x & r] (apply * x r))
-                      :S (fn [x] x)
-                      :Q (fn [x] :stop)}
+    (insta/transform {:D (fn d [x] (edn/read-string x))
+                      :A (fn a [& r] (apply + r))
+                      :M (fn m [& r] (apply * r))
+                      :exp (fn bla [x] [:result x])
+                      :S (fn s  [& r] (last r)) ;; we keep the last thingy ...
+                      ;; which will be a problem if q! is in the middle of a program (for now)
+                      :Q (fn q  [x] [:stop])}
                      tree)))
 
 (defn run
@@ -38,11 +41,12 @@
             _ (flush)
             inp (read-line)
             outp (opeeval inp)
-            mss (if (= outp :stop)
-                  "\nBye!!\n"
-                  (str " " outp "\n"))]
+            mss (case (first outp)
+                  :stop "\nBye!!\n"
+                  :result (str " " (second outp) "\n")
+                  (str "ERROR :O"))]
         (print mss)
-        (recur (= outp :stop))))))
+        (recur (= (first outp) :stop))))))
 
 (defn run-file
   [f opt]
