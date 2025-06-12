@@ -27,14 +27,26 @@ clj -X:test
 to run the tests
 
 ```
-clj -X main/run
+clj -M -m main
 ```
-run the `run` function of `main` namespace. It currenlty takes no input. input should be a list of keys and values that are passed as a map to the clojure function (I think).
+run the `-main` function of `main` namespace. At this point it only prints a hello message
+
+```
+clj -T:build uberjar
+```
+creates the file `target/proglang.jar` which can be distributed.
+
+```
+clj -T:build clean
+```
+clean up the build.
+
 
 ## Project organisation
 
 Folders:
 - `bin`: storing useful piece of bech code
+- `build.clj`: code to build the `.jar` for our project
 - `deps.edn`: where we list clojure dependencies, paths and aliases
 - `nix`: nix stuff
 - `shell.nix`: the file where you can add dependencies like `Clojure`
@@ -80,3 +92,13 @@ becomes
 **But**: for the moment, we can quit the program by `ctr+c` which actually stop the whole clojure. Let's add an offical command to stop it so our loop is not quite infinite.
 
 **Solution - part 2**: we add to the grammar so the commands `q!` and `quit!` are recognised, then the tree is also adapted and we have a branching in the main program so that it knows what to do with this new possible output (not printing it).
+
+### Step 4.2 : read code from file
+
+**Goal**: we want to be able to run programs from a file.
+
+**Part 1**: we set up a way to build the program with `build.clj` and the command line `clj -T:build uberjar`
+
+**Part 2**: reworked the main so it handles the number of arguments and call the `run` or `run-file` functions. `run` is now not callable through `clj -X main/run` as it takes no input arguments now.
+
+**Part 3**: completed the `run-file` function, checkink the file exists and then reading one line at a time and evaluating it. By default it only prints the last result. The options `-sao` and `-sai` shows all outputs and all inputs (and outputs).

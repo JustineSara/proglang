@@ -3,6 +3,10 @@
  :aliases
  {;; taken from https://docs.cider.mx/cider-nrepl/usage.html#via-clj
   ;; then bumped
+  :build {:deps {io.github.clojure/tools.build {:git/tag "v0.10.9" :git/sha "e405aac"}}
+          :ns-default build
+          ;; this is a tool so we will call it with -T
+          }
   :cider-clj {:extra-deps {org.clojure/clojure {:mvn/version "1.12.1"}
                            cider/cider-nrepl {:mvn/version "0.56.0"}}
               :main-opts ["-m" "nrepl.cmdline" "--middleware" "[cider.nrepl/cider-middleware]"]}

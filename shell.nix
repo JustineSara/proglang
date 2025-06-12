@@ -9,6 +9,7 @@ pkgs.mkShell {
     bash
     curl
     clojure
+    jdk
     jq
   ];
 }
