@@ -32,11 +32,6 @@ clj -M -m main
 run the `-main` function of `main` namespace. At this point it only prints a hello message
 
 ```
-clj -X main/run
-```
-run the `run` function of `main` namspace, which currently is a shell for our language (step4).
-
-```
 clj -T:build uberjar
 ```
 creates the file `target/proglang.jar` which can be distributed.
@@ -103,3 +98,5 @@ becomes
 **Goal**: we want to be able to run programs from a file.
 
 **Part 1**: we set up a way to build the program with `build.clj` and the command line `clj -T:build uberjar`
+
+**Part 2**: reworked the main so it handles the number of arguments and call the `run` or `run-file` functions. `run` is now not callable through `clj -X main/run` as it takes no input arguments now.
