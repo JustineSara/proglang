@@ -6,7 +6,8 @@
 
 (def ope
   (insta/parser
-    "S = A|M|D|Dp|Ap|Mp|Q
+    "S = (exp|Q) (<'\\n'> (exp|Q))* <lastline>?
+    exp = A|M|D|Dp|Ap|Mp
     <Ap> = <'('> A <')'>
     A = (D|Dp|M|Mp|Ap) <W*> (<'+'> <W*> (D|Dp|M|Mp|Ap))+
     M = (D|Dp|Mp|Ap) <W*> (<'*'> <W*> (D|Dp|Ap|Mp))+
@@ -15,16 +16,19 @@
     D = #'\\d+'
     W = #' '
     Q = 'quit!'|'q!'
+    lastline = '\\n'
     "))
 
 (defn opeeval
   [txt]
   (let [tree (ope txt)]
-    (insta/transform {:D (fn [x] (edn/read-string x))
-                      :A (fn [x & r] (apply + x r))
-                      :M (fn [x & r] (apply * x r))
-                      :S (fn [x] x)
-                      :Q (fn [x] :stop)}
+    (insta/transform {:D (fn d [x] (edn/read-string x))
+                      :A (fn a [& r] (apply + r))
+                      :M (fn m [& r] (apply * r))
+                      :exp (fn bla [x] [:result x])
+                      :S (fn s  [& r] r) ;; we keep all the thingy ...
+                      ;; which means we are not handling statement, including q! at all.
+                      :Q (fn q  [x] [:stop])}
                      tree)))
 
 (defn run
@@ -37,39 +41,30 @@
       (let [_ (print "> ")
             _ (flush)
             inp (read-line)
-            outp (opeeval inp)
-            mss (if (= outp :stop)
-                  "\nBye!!\n"
-                  (str " " outp "\n"))]
+            outp (last (opeeval inp))
+            mss (case (first outp)
+                  :stop "\nBye!!\n"
+                  :result (str " " (second outp) "\n")
+                  (str "ERROR :O"))]
         (print mss)
-        (recur (= outp :stop))))))
+        (recur (= (first outp) :stop))))))
 
 (defn run-file
-  [f opt]
+  [f]
   (if (.exists (io/file f))
-    (let [alltxt (s/split-lines (slurp f))]
-      (loop [a alltxt
-             r nil]
-        (if (empty? a)
-          (do
-            (println)
-            (println r))
-          (let [[inp & a] a
-                outp (opeeval inp)]
-            (when (= opt "-sai") (println "> " inp))
-            (when (not (nil? opt)) (println "  " outp))
-            (recur a outp)))))
+    (let [inp (slurp f)
+          outp (opeeval inp)]
+      (println)
+      (println outp)
+      (println (last outp)))
     (println "/!\\ The file " f "does not exist. Check your file path and name!")))
 
 (defn usage
   []
-  (println "Usage: proglang [file] [options]")
+  (println "Usage: proglang [file]")
   (println)
   (println "- if no arguments are provided, starts a shell")
-  (println "- if file is provided, run the file and print the end result")
-  (println "- options are only valid with files:")
-  (println "\t * -sao : show all outputs. Print each result from each line.")
-  (println "\t * -sai : show all inputs. Print each input line followed by its result."))
+  (println "- if file is provided, run the file and print the end result"))
 
 (defn -main
   [& args]
@@ -78,10 +73,5 @@
     1 (let [f (first args)]
         (if (or (= f "-u") (= f "-h"))
           (usage)
-          (run-file f nil)))
-    2 (let [f (first args)
-            opt (second args)]
-        (if (or (= opt "-sao") (= opt "-sai"))
-          (run-file f opt)
-          (usage)))
+          (run-file f)))
     (usage)))

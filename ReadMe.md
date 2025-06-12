@@ -27,14 +27,19 @@ clj -X:test
 to run the tests
 
 ```
-clj -M -m main
+clj -M -m main [file]
 ```
-run the `-main` function of `main` namespace. At this point it only prints a hello message
+run the `-main` function of `main` namespace. with no argument it starts a shell. With one argument, it reads a file and runs the program in the file.
 
 ```
 clj -T:build uberjar
 ```
 creates the file `target/proglang.jar` which can be distributed.
+
+```
+java -jar target/proglang.jar
+```
+to run the proglang program / uberjar.
 
 ```
 clj -T:build clean
@@ -93,7 +98,7 @@ becomes
 
 **Solution - part 2**: we add to the grammar so the commands `q!` and `quit!` are recognised, then the tree is also adapted and we have a branching in the main program so that it knows what to do with this new possible output (not printing it).
 
-### Step 4.2 : read code from file
+### Step 5 : read code from file
 
 **Goal**: we want to be able to run programs from a file.
 
@@ -102,3 +107,11 @@ becomes
 **Part 2**: reworked the main so it handles the number of arguments and call the `run` or `run-file` functions. `run` is now not callable through `clj -X main/run` as it takes no input arguments now.
 
 **Part 3**: completed the `run-file` function, checkink the file exists and then reading one line at a time and evaluating it. By default it only prints the last result. The options `-sao` and `-sai` shows all outputs and all inputs (and outputs).
+
+### Step 6 : handle multiline program
+
+**Goal**: handle multiline programs through the grammar.
+
+**Part 1**: modify the grammar and tree-making to add the newline and distinction between expression and statement (currently not there apart from the `quit!` command).
+
+**Part 2**: make it work for running a file: need to account for the last newline at the end of the file. Note that currently empty lines make everything fail. Also removed the options as they are not relevant anymore.
