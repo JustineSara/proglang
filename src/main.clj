@@ -25,4 +25,14 @@
 
 (defn run
   [opts]
-  (print "Hello World!"))
+  (print "\nWelcome to proglang!\nThe programming language made for fun and learning :-)
+         \n\nFor now, only the + and * operations exist.\nHave fun!\n\n")
+  (loop [stop false]
+    (if stop
+      :stop
+      (let [_ (print "> ")
+            _ (flush)
+            inp (read-line)
+            outp (opeeval inp)
+            _ (print " " outp "\n")]
+        (recur stop)))))
