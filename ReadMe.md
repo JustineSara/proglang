@@ -100,3 +100,5 @@ becomes
 **Part 1**: we set up a way to build the program with `build.clj` and the command line `clj -T:build uberjar`
 
 **Part 2**: reworked the main so it handles the number of arguments and call the `run` or `run-file` functions. `run` is now not callable through `clj -X main/run` as it takes no input arguments now.
+
+**Part 3**: completed the `run-file` function, checkink the file exists and then reading one line at a time and evaluating it. By default it only prints the last result. The options `-sao` and `-sai` shows all outputs and all inputs (and outputs).

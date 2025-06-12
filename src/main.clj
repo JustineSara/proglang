@@ -1,6 +1,8 @@
 (ns main
-  (:require [instaparse.core :as insta]
-            [clojure.edn :as edn]))
+  (:require [clojure.edn :as edn]
+            [clojure.java.io :as io]
+            [clojure.string :as s]
+            [instaparse.core :as insta]))
 
 (def ope
   (insta/parser
@@ -44,9 +46,20 @@
 
 (defn run-file
   [f opt]
-  (println "Code does not exist yet, will do soon")
-  (println "File:" f)
-  (println "Option:" opt))
+  (if (.exists (io/file f))
+    (let [alltxt (s/split-lines (slurp f))]
+      (loop [a alltxt
+             r nil]
+        (if (empty? a)
+          (do
+            (println)
+            (println r))
+          (let [[inp & a] a
+                outp (opeeval inp)]
+            (when (= opt "-sai") (println "> " inp))
+            (when (not (nil? opt)) (println "  " outp))
+            (recur a outp)))))
+    (println "/!\\ The file " f "does not exist. Check your file path and name!")))
 
 (defn usage
   []
