@@ -29,10 +29,13 @@
          \n\nFor now, only the + and * operations exist.\nHave fun!\n\n")
   (loop [stop false]
     (if stop
-      :stop
+      (do (print "\nBye!!\n")
+          :stop)
       (let [_ (print "> ")
             _ (flush)
-            inp (read-line)
-            outp (opeeval inp)
-            _ (print " " outp "\n")]
-        (recur stop)))))
+            inp (read-line)]
+        (if (= inp "q!")
+          (recur true)
+          (let [outp (opeeval inp)
+                _ (print " " outp "\n")]
+            (recur stop)))))))
