@@ -8,7 +8,8 @@
   (insta/parser
     "S = <nl>* sttmt (<nl>+ sttmt)* <nl>*
     <sttmt> = exp | assign | Q
-    assign = name <W*> <'='> <W*> exp
+    assign = Aname <W*> <'='> <W*> exp
+    Aname = name
     exp = A|M|D|Dp|Ap|Mp|name
     <Ap> = <'('> A <')'>
     <Mp> = <'('> M <')'>
@@ -17,10 +18,11 @@
     A = (elem|M|Mp|Ap) <W*> (<'+'> <W*> (elem|M|Mp|Ap))+
     M = (elem|Mp|Ap) <W*> (<'*'> <W*> (elem|Ap|Mp))+
     D = #'\\d+'
-    elem = D | Dp | name | namep
+    <elem> = D | Dp | Rname
+    Rname = name | namep
     W = #' '
     Q = 'quit!'|'q!'
-    name = #'[a-zA-Z]\\w*'
+    <name> = #'[a-zA-Z]\\w*'
     <nl> = '\n'
     "))
 
@@ -30,7 +32,7 @@
     (insta/transform {:D (fn d [x] (edn/read-string x))
                       :A (fn a [& r] (apply + r))
                       :M (fn m [& r] (apply * r))
-                      :exp (fn bla [x] [:result x])
+                      :exp (fn exp [x] [:result x])
                       :S (fn s  [& r] r) ;; we keep all the thingy ...
                       ;; which means we are not handling statement, including q! at all.
                       :Q (fn q  [x] [:stop])}

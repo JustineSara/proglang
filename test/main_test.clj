@@ -38,3 +38,8 @@
 (deftest step6
   (are [text res] (= res (m/opeeval text))
     "2+2\n3+3" [[:result 4] [:result 6]]))
+
+(deftest step7
+  (are [text res] (= res (m/ope text))
+    "a=2" [:S [:assign [:Aname "a"] [:exp [:D "2"]]]]
+    "2+a1" [:S [:exp [:A [:D "2"] [:Rname "a1"]]]]))
