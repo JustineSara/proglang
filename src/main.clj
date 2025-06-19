@@ -8,10 +8,10 @@
   (insta/parser
     "S = <nl>* sttmt (<nl>+ sttmt)* <nl>*
     <sttmt> = defn | exp | assign | Q
-    defn = <'def '> <W*> Aname <W*> <'('> args <')'> <W*> <':'> <nl> flines
-    args = arg? (<W*>','<W*> arg)* <W*>
-    arg = name
-    flines = (<'  '> (return | exp | assign) <nl>)+
+    defn = <'def '> <W*> Aname <W*> <'('> args <')'> <W*> <':'>  flines
+    args = arg? (<W*> <','> <W*> arg)* <W*>
+    <arg> = name
+    flines = (<nl> <'  '> (return | exp | assign))+
     return = <'return '> <W*> exp
     assign = Aname <W*> <'='> <W*> exp
     Aname = name
@@ -53,8 +53,40 @@
     :assign (let [[aname expr] nc]
               (if (= (first aname) :Aname)
                 [(assoc m (second aname) (second (node-eval m expr))) nil]
-                [:error :assign]))
+                [m [:error :assign]]))
     :Rname [m (get m (first nc))]
+    :defn (let [[aname args flines] nc]
+            (if (and (= (first aname) :Aname)
+                     (= (first args) :args)
+                     (= (first flines) :flines))
+              [(assoc-in m [:fct (second aname)] {:args (rest args) :flines (rest flines)}) nil]
+              [m [:error :defn]]))
+    :fct (let [fname (->> nc
+                          first
+                          second)
+               argsName (get-in m [:fct fname :args])
+               flines (get-in m [:fct fname :flines])
+               args (->> nc
+                         rest
+                         (map (fn [sub-n] (node-eval m sub-n)))
+                         (map second)
+                         (map (fn [argN argV] [argN argV]) argsName))
+               m-in-fct (reduce (fn [mm [argN argV]]
+                                  (assoc mm argN argV))
+                                m
+                                args)
+               check (and (= (->> nc first first) :Rname)
+                          (= (count argsName) (count (rest nc))))]
+           (if check
+             (loop [FLINES flines
+                    m-in-fct m-in-fct]
+               (if (empty? FLINES)
+                 [m [:error :fct :noreturn]]
+                 (let [[L & FLINES] FLINES]
+                   (if (= (first L) :return)
+                     [m (second (node-eval m-in-fct (second L)))]
+                     (recur FLINES (first (node-eval m-in-fct L)))))))
+             [m [:error :fct :args-or-others]]))
 
   ))
 
