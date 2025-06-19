@@ -27,43 +27,59 @@
     "))
 
 (defn opeeval
-  [txt]
-  (let [tree (ope txt)]
-    (insta/transform {:D (fn d [x] (edn/read-string x))
-                      :A (fn a [& r] (apply + r))
-                      :M (fn m [& r] (apply * r))
+  [txt m]
+  (let [tree (ope txt)
+        a (atom m)]
+    (insta/transform {:D (fn D [x] (edn/read-string x))
+                      :A (fn A [& r] (apply + r))
+                      :M (fn M [& r] (apply * r))
                       :exp (fn exp [x] [:result x])
-                      :S (fn s  [& r] r) ;; we keep all the thingy ...
+                      :S (fn S  [& r] r) ;; we keep all the thingy ...
                       ;; which means we are not handling statement, including q! at all.
-                      :Q (fn q  [x] [:stop])}
+                      :assign (fn assign [x y] (if (and (= (first x) :Aname) (= (first y) :result))
+                                                 (do
+                                                   (swap! a assoc (second x) (second y))
+                                                   [:mem (second x) (second y)])
+                                                 [:error :assign]))
+                      :Rname (fn Rname [x] (get @a x))
+                      :Q (fn Q  [x] [:stop])}
                      tree)))
 
 (defn run
   []
   (print "\nWelcome to proglang!\nThe programming language made for fun and learning :-)
          \n\nFor now, only the + and * operations exist.\nHave fun!\n\n")
-  (loop [stop false]
+  (loop [stop false
+         m {}]
     (if stop
       :stop
       (let [_ (print "> ")
             _ (flush)
             inp (read-line)
-            outp (last (opeeval inp))
+            outp (last (opeeval inp m))
             mss (case (first outp)
                   :stop "\nBye!!\n"
                   :result (str " " (second outp) "\n")
+                  :mem ""
+                  :error (str "ERROR: " (second outp))
                   (str "ERROR :O"))]
         (print mss)
-        (recur (= (first outp) :stop))))))
+        (recur (= (first outp) :stop)
+               (if (= (first outp) :mem)
+                 (assoc m (second outp) (last outp))
+                 m))))))
 
 (defn run-file
   [f]
   (if (.exists (io/file f))
     (let [inp (slurp f)
-          outp (opeeval inp)]
+          outp (opeeval inp {})
+          outpl (last outp)]
       (println)
       (println outp)
-      (println (last outp)))
+      (println outpl)
+      (if (= (first outpl) :result)
+        (last outpl)))
     (println "/!\\ The file " f "does not exist. Check your file path and name!")))
 
 (defn usage

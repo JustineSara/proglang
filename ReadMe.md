@@ -121,3 +121,7 @@ becomes
 **Goal**: be able to do `a=1` and then `2*a` and get `2`.
 
 **Part 1**: add to the grammar so we accept `a=1`. (not doing anything with it for now).
+
+**Part 1 also**: have the grammar distinguish between the name of a value during attribution `Aname` and during use `Rname` (resolve).
+
+**Part 2**: eval the new definition. Need to add a memory, I use an `atom` `a`. In the shell we want to keep the saved values in between lines, which we evaluate one by one, so we have a memory map `m` that is used to initialise the `atom a`.
