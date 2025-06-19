@@ -125,3 +125,11 @@ becomes
 **Part 1 also**: have the grammar distinguish between the name of a value during attribution `Aname` and during use `Rname` (resolve).
 
 **Part 2**: eval the new definition. Need to add a memory, I use an `atom` `a`. In the shell we want to keep the saved values in between lines, which we evaluate one by one, so we have a memory map `m` that is used to initialise the `atom a`.
+
+### Step 8: function definition
+
+**Goal**: create `def <fname> (<args>):` so a function can be defined and also be called.
+
+**Part 1 - grammar 1**: add the function definition to the grammar
+
+**Part 2 - grammar 2**: add calling the function to the grammar

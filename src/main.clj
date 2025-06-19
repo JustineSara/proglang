@@ -7,10 +7,16 @@
 (def ope
   (insta/parser
     "S = <nl>* sttmt (<nl>+ sttmt)* <nl>*
-    <sttmt> = exp | assign | Q
+    <sttmt> = defn | exp | assign | Q
+    defn = <'def '> <W*> Aname <W*> <'('> args <')'> <W*> <':'> <nl> flines
+    args = arg? (<W*>','<W*> arg)* <W*>
+    arg = name
+    flines = (<'  '> (return | exp | assign) <nl>)+
+    return = <'return '> <W*> exp
     assign = Aname <W*> <'='> <W*> exp
     Aname = name
-    exp = A|M|D|Dp|Ap|Mp|name
+    <exp> = A|M|D|Dp|Ap|Mp|Rname|fct
+    fct = Rname <W*> <'('> <W*> exp? (<W*> <','> <W*> exp)* <W*> <')'>
     <Ap> = <'('> A <')'>
     <Mp> = <'('> M <')'>
     <Dp> = <'('> D <')'>
@@ -22,9 +28,35 @@
     Rname = name | namep
     W = #' '
     Q = 'quit!'|'q!'
-    <name> = #'[a-zA-Z]\\w*'
+    keywords = 'return' | 'def'
+    <name> = !keywords #'[a-zA-Z]\\w*'
     <nl> = '\n'
     "))
+
+(defn node-eval
+  [m [nn & nc]]
+  ;; m = memory
+  ;; [nn nc] = node-name node-content
+  (case nn
+    :D [m (edn/read-string (first nc))]
+    :A [m (->> nc
+               (map (fn [sub-n] (node-eval m sub-n)))
+               (map second)
+               (apply + 0))]
+    :M [m (->> nc
+               (map (fn [sub-n] (node-eval m sub-n)))
+               (map second)
+               (apply * 1))]
+    :S (reduce (fn [[m r] n] (node-eval m n))
+               [m nil]
+               nc)
+    :assign (let [[aname expr] nc]
+              (if (= (first aname) :Aname)
+                [(assoc m (second aname) (second (node-eval m expr))) nil]
+                [:error :assign]))
+    :Rname [m (get m (first nc))]
+
+  ))
 
 (defn opeeval
   [txt m]
@@ -34,12 +66,12 @@
                       :A (fn A [& r] (apply + r))
                       :M (fn M [& r] (apply * r))
                       :exp (fn exp [x] [:result x])
-                      :S (fn S  [& r] r) ;; we keep all the thingy ...
+                      :S (fn S  [& r] (concat [:result] r)) ;; we keep all the thingy ...
                       ;; which means we are not handling statement, including q! at all.
-                      :assign (fn assign [x y] (if (and (= (first x) :Aname) (= (first y) :result))
+                      :assign (fn assign [x y] (if (= (first x) :Aname)
                                                  (do
-                                                   (swap! a assoc (second x) (second y))
-                                                   [:mem (second x) (second y)])
+                                                   (swap! a assoc (second x) y)
+                                                   [:mem (second x) y])
                                                  [:error :assign]))
                       :Rname (fn Rname [x] (get @a x))
                       :Q (fn Q  [x] [:stop])}
@@ -59,7 +91,7 @@
             outp (last (opeeval inp m))
             mss (case (first outp)
                   :stop "\nBye!!\n"
-                  :result (str " " (second outp) "\n")
+                  :result (str " " (last outp) "\n")
                   :mem (format "%s := %s" (second outp) (last outp))
                   :error (str "ERROR: " (second outp))
                   (str "ERROR :O"))]
@@ -78,8 +110,8 @@
       (println)
       (println outp)
       (println outpl)
-      (if (= (first outpl) :result)
-        (last outpl)))
+      (when (= (first outp) :result)
+        outpl))
     (println "/!\\ The file " f "does not exist. Check your file path and name!")))
 
 (defn usage
