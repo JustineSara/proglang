@@ -57,3 +57,13 @@
   #_(are [text res] (= res (m/opeeval text {}))
     "def add2(a):\n  return a+ 2\n" [:S [:defn [:Aname "add2"] [:args [:arg "a"]] [:fline [:return [:A [:Rname "a"] [:D "2"]]]]]])
   )
+
+(deftest step3new
+  (are [text grm res] (= [grm res] [(m/ope text) (m/node-eval {} (m/ope text))])
+    "2" [:S [:D "2"]] [{} 2]
+    "2*1+1" [:S [:A [:M [:D "2"] [:D "1"]] [:D "1"]]] [{} 3]
+    "2*(1+1)" [:S [:M [:D "2"] [:A [:D "1"] [:D "1"]]]] [{} 4]
+    "a=2" [:S [:assign [:Aname "a"] [:D "2"]]] [{"a" 2} nil]
+    "a=2\na*3" [:S [:assign [:Aname "a"] [:D "2"]] [:M [:Rname "a"] [:D "3"]]] [{"a" 2} 6]
+    "a=1+1+1\n2*a" [:S [:assign [:Aname "a"] [:A [:D "1"][:D "1"][:D "1"]]] [:M [:D "2"] [:Rname "a"]]] [{"a" 3} 6]
+  ))

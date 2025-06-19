@@ -33,6 +33,31 @@
     <nl> = '\n'
     "))
 
+(defn node-eval
+  [m [nn & nc]]
+  ;; m = memory
+  ;; [nn nc] = node-name node-content
+  (case nn
+    :D [m (edn/read-string (first nc))]
+    :A [m (->> nc
+               (map (fn [sub-n] (node-eval m sub-n)))
+               (map second)
+               (apply + 0))]
+    :M [m (->> nc
+               (map (fn [sub-n] (node-eval m sub-n)))
+               (map second)
+               (apply * 1))]
+    :S (reduce (fn [[m r] n] (node-eval m n))
+               [m nil]
+               nc)
+    :assign (let [[aname expr] nc]
+              (if (= (first aname) :Aname)
+                [(assoc m (second aname) (second (node-eval m expr))) nil]
+                [:error :assign]))
+    :Rname [m (get m (first nc))]
+
+  ))
+
 (defn opeeval
   [txt m]
   (let [tree (ope txt)
