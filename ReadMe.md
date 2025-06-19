@@ -61,7 +61,7 @@ Folders:
 
 ## Steps
 
-### Step 1
+### Step 1: do basic maths
 
 **Goal**: code the grammar part. The input is an instruction string, the output is a tree representing the instruction. We are limiting this to additions and multiplications (which should be computed in the order expected form conventional maths, no parenthesis) and to integers.
 
@@ -76,19 +76,19 @@ becomes
 [:S [:A [:M [:D "2"] [:D "1"]] [:D "1"]]]
 ```
 
-### Step 2
+### Step 2: more maths
 
 **Goal**: add the maths-parenthesis (priority of operations) to the grammar.
 
 **Solution**: I define the piece of grammar `Ap` (resp. `Mp`) for addition with parenthesis (resp. multiplication), which are easily defined from `A` (resp. `M`) then we use the angle brackets `<Ap>` so the tag does not appear in the results.
 
-### Step 3 : eval
+### Step 3: eval
 
 **Goal**: turn the tree into a value.
 
 **Solution**: I built `opeeval` which has a `string` input and outputs an `int` that is the result of the operation. It is built using the previous steps. We use `edn/read-string` rather than `parse-double` to stay within `int` format.
 
-### Step 4 : shell
+### Step 4: shell
 
 **Goal**: create a shell so a user can write operations and have the result.
 
@@ -98,7 +98,7 @@ becomes
 
 **Solution - part 2**: we add to the grammar so the commands `q!` and `quit!` are recognised, then the tree is also adapted and we have a branching in the main program so that it knows what to do with this new possible output (not printing it).
 
-### Step 5 : read code from file
+### Step 5: read code from file
 
 **Goal**: we want to be able to run programs from a file.
 
@@ -108,10 +108,20 @@ becomes
 
 **Part 3**: completed the `run-file` function, checkink the file exists and then reading one line at a time and evaluating it. By default it only prints the last result. The options `-sao` and `-sai` shows all outputs and all inputs (and outputs).
 
-### Step 6 : handle multiline program
+### Step 6: handle multiline program
 
 **Goal**: handle multiline programs through the grammar.
 
 **Part 1**: modify the grammar and tree-making to add the newline and distinction between expression and statement (currently not there apart from the `quit!` command).
 
 **Part 2**: make it work for running a file: need to account for the last newline at the end of the file. Note that currently empty lines make everything fail. Also removed the options as they are not relevant anymore.
+
+### Step 7: assignement
+
+**Goal**: be able to do `a=1` and then `2*a` and get `2`.
+
+**Part 1**: add to the grammar so we accept `a=1`. (not doing anything with it for now).
+
+**Part 1 also**: have the grammar distinguish between the name of a value during attribution `Aname` and during use `Rname` (resolve).
+
+**Part 2**: eval the new definition. Need to add a memory, I use an `atom` `a`. In the shell we want to keep the saved values in between lines, which we evaluate one by one, so we have a memory map `m` that is used to initialise the `atom a`.

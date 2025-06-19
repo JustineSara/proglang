@@ -27,7 +27,7 @@
     "(2)+2" [:S [:exp [:A [:D "2"] [:D "2"]]]]))
 
 (deftest step3
-  (are [text res] (= res (last (m/opeeval text)))
+  (are [text res] (= res (last (m/opeeval text {})))
     "2*1+1" [:result 3]
     "2*(1+1)" [:result 4]
     "(1+1)*(2+1+1)" [:result 8]
@@ -36,5 +36,14 @@
     "(2)+2" [:result 4]))
 
 (deftest step6
-  (are [text res] (= res (m/opeeval text))
+  (are [text res] (= res (m/opeeval text {}))
     "2+2\n3+3" [[:result 4] [:result 6]]))
+
+(deftest step7
+  (are [text res] (= res (m/ope text))
+    "a=2" [:S [:assign [:Aname "a"] [:exp [:D "2"]]]]
+    "2+a1" [:S [:exp [:A [:D "2"] [:Rname "a1"]]]])
+  (are [text res] (= res (m/opeeval text {}))
+    "a=2\n2+a" [[:mem "a" 2] [:result 4]]
+    )
+  (is (= (m/run-file "myprog/p2") 8)))
