@@ -61,9 +61,8 @@
     "def add2(a):\n  return a+ 2\nadd2(40)" 42
     "def add2(a):\n  b=a+2\n  return b\nadd2(20*2)" 42
     "b=4\ndef add2(a):\n  b=a+2\n  return b\nadd2(10)" 12
-    "b=4\ndef add2(a):\n  b=a+2\n  return b\nadd2(10)\nb" 4
-
-    )
+    "b=4\ndef add2(a):\n  b=a+2\n  return b\nadd2(10)\nb" 4)
+  (is (= (m/run-file "myprog/p-fct") 4))
   )
 
 (deftest grm-and-node-eval
