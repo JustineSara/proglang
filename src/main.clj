@@ -60,7 +60,7 @@
             mss (case (first outp)
                   :stop "\nBye!!\n"
                   :result (str " " (second outp) "\n")
-                  :mem ""
+                  :mem (format "%s := %s" (second outp) (last outp))
                   :error (str "ERROR: " (second outp))
                   (str "ERROR :O"))]
         (print mss)
