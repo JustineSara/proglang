@@ -15,7 +15,7 @@
     return = <'return '> <W*> exp
     assign = Aname <W*> <'='> <W*> exp
     Aname = name
-    exp = A|M|D|Dp|Ap|Mp|Rname|fct
+    <exp> = A|M|D|Dp|Ap|Mp|Rname|fct
     fct = Rname <W*> <'('> <W*> exp? (<W*> <','> <W*> exp)* <W*> <')'>
     <Ap> = <'('> A <')'>
     <Mp> = <'('> M <')'>
@@ -41,12 +41,12 @@
                       :A (fn A [& r] (apply + r))
                       :M (fn M [& r] (apply * r))
                       :exp (fn exp [x] [:result x])
-                      :S (fn S  [& r] r) ;; we keep all the thingy ...
+                      :S (fn S  [& r] (concat [:result] r)) ;; we keep all the thingy ...
                       ;; which means we are not handling statement, including q! at all.
-                      :assign (fn assign [x y] (if (and (= (first x) :Aname) (= (first y) :result))
+                      :assign (fn assign [x y] (if (= (first x) :Aname)
                                                  (do
-                                                   (swap! a assoc (second x) (second y))
-                                                   [:mem (second x) (second y)])
+                                                   (swap! a assoc (second x) y)
+                                                   [:mem (second x) y])
                                                  [:error :assign]))
                       :Rname (fn Rname [x] (get @a x))
                       :Q (fn Q  [x] [:stop])}
@@ -66,7 +66,7 @@
             outp (last (opeeval inp m))
             mss (case (first outp)
                   :stop "\nBye!!\n"
-                  :result (str " " (second outp) "\n")
+                  :result (str " " (last outp) "\n")
                   :mem (format "%s := %s" (second outp) (last outp))
                   :error (str "ERROR: " (second outp))
                   (str "ERROR :O"))]
@@ -85,8 +85,8 @@
       (println)
       (println outp)
       (println outpl)
-      (if (= (first outpl) :result)
-        (last outpl)))
+      (when (= (first outp) :result)
+        outpl))
     (println "/!\\ The file " f "does not exist. Check your file path and name!")))
 
 (defn usage
