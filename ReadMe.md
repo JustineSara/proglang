@@ -133,3 +133,25 @@ becomes
 **Part 1 - grammar 1**: add the function definition to the grammar
 
 **Part 2 - grammar 2**: add calling the function to the grammar
+
+**Challenge**: the current evaluation starts from the most-inside node, which does not work
+with function-definition. So I rewrite the `opeeval` function into `node-eval` that
+is called recursively.
+
+**Note**: if the function use an outside variable, the value used is the one
+defined when the function is called rather than when it is defined:
+```
+b = 0
+def addb(a):
+  return a+b
+
+addb(2)
+>    2
+
+b =2
+
+addb(2)
+>    4
+```
+
+**Part 3 - eval**: in the new `node-eval` I code the resolution of the function. There in an "in-function memory" separated form the global `m` so they don't contaminate each other. We first solve the args, add them to that in-function memory and resolve the lines of the functions one by one until we reach `return` (or the end, upon which we have an error)
