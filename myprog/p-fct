@@ -1,0 +1,9 @@
+b = 0
+def addb(a):
+  return a+b
+
+addb(2)
+
+b =2
+
+addb(2)
