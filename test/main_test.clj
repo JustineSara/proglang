@@ -52,6 +52,7 @@
   (are [text res] (= res (m/ope text))
     "def add2(a):\n  return a+ 2\n" [:S [:defn [:Aname "add2"] [:args [:arg "a"]] [:flines [:return [:exp [:A [:Rname "a"] [:D "2"]]]]]]]
     "def add2(a):\n  b=a+2\n  return b\n" [:S [:defn [:Aname "add2"] [:args [:arg "a"]] [:flines [:assign [:Aname "b"] [:exp [:A [:Rname "a"] [:D "2"]]]] [:return [:exp [:Rname "b"]]]]]]
+    "add2(2)" [:S [:exp [:fct [:Rname "add2"] [:exp [:D "2"]]]]]
     )
   #_(are [text res] (= res (m/opeeval text {}))
     "def add2(a):\n  return a+ 2\n" [:S [:defn [:Aname "add2"] [:args [:arg "a"]] [:fline [:return [:exp [:A [:Rname "a"] [:D "2"]]]]]]])

@@ -131,3 +131,5 @@ becomes
 **Goal**: create `def <fname> (<args>):` so a function can be defined and also be called.
 
 **Part 1 - grammar 1**: add the function definition to the grammar
+
+**Part 2 - grammar 2**: add calling the function to the grammar

@@ -8,14 +8,15 @@
   (insta/parser
     "S = <nl>* sttmt (<nl>+ sttmt)* <nl>*
     <sttmt> = defn | exp | assign | Q
-    defn = <'def'> <W*> Aname <W*> <'('> args <')'> <W*> <':'> <nl> flines
+    defn = <'def '> <W*> Aname <W*> <'('> args <')'> <W*> <':'> <nl> flines
     args = arg? (<W*>','<W*> arg)* <W*>
     arg = name
     flines = (<'  '> (return | exp | assign) <nl>)+
     return = <'return '> <W*> exp
     assign = Aname <W*> <'='> <W*> exp
     Aname = name
-    exp = A|M|D|Dp|Ap|Mp|Rname
+    exp = A|M|D|Dp|Ap|Mp|Rname|fct
+    fct = Rname <W*> <'('> <W*> exp? (<W*> <','> <W*> exp)* <W*> <')'>
     <Ap> = <'('> A <')'>
     <Mp> = <'('> M <')'>
     <Dp> = <'('> D <')'>
