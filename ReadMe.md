@@ -129,3 +129,5 @@ becomes
 ### Step 8: function definition
 
 **Goal**: create `def <fname> (<args>):` so a function can be defined and also be called.
+
+**Part 1 - grammar 1**: add the function definition to the grammar

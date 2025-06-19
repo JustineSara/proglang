@@ -47,3 +47,12 @@
     "a=2\n2+a" [[:mem "a" 2] [:result 4]]
     )
   (is (= (m/run-file "myprog/p2") 8)))
+
+(deftest step 8
+  (are [text res] (= res (m/ope text))
+    "def add2(a):\n  return a+ 2\n" [:S [:defn [:Aname "add2"] [:args [:arg "a"]] [:flines [:return [:exp [:A [:Rname "a"] [:D "2"]]]]]]]
+    "def add2(a):\n  b=a+2\n  return b\n" [:S [:defn [:Aname "add2"] [:args [:arg "a"]] [:flines [:assign [:Aname "b"] [:exp [:A [:Rname "a"] [:D "2"]]]] [:return [:exp [:Rname "b"]]]]]]
+    )
+  #_(are [text res] (= res (m/opeeval text {}))
+    "def add2(a):\n  return a+ 2\n" [:S [:defn [:Aname "add2"] [:args [:arg "a"]] [:fline [:return [:exp [:A [:Rname "a"] [:D "2"]]]]]]])
+  )
