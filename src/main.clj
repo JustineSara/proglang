@@ -137,13 +137,12 @@
   [f]
   (if (.exists (io/file f))
     (let [inp (slurp f)
-          outp (opeeval inp {})
+          outp (node-eval {} (ope inp))
           outpl (last outp)]
       (println)
       (println outp)
       (println outpl)
-      (when (= (first outp) :result)
-        outpl))
+      outpl)
     (println "/!\\ The file " f "does not exist. Check your file path and name!")))
 
 (defn usage
