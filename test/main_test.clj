@@ -46,7 +46,7 @@
   (are [text res] (= res (m/opeeval text {}))
     "a=2\n2+a" [:result [:mem "a" 2] 4]
     )
-  (is (= (m/run-file "myprog/p2") 8)))
+  (is (= (m/run-file "myprog/p2") {:type :int :value 8})))
 
 (deftest step 8
   (are [text res] (= res (m/ope text))
@@ -54,25 +54,42 @@
     "def give2():\n  return 2\n" [:S [:defn [:Aname "give2"] [:args ] [:flines [:return [:D "2"]]]]]
     "def add2(a):\n  b=a+2\n  return b\n" [:S [:defn [:Aname "add2"] [:args "a"] [:flines [:assign [:Aname "b"] [:A [:Rname "a"] [:D "2"]]] [:return [:Rname "b"]]]]]
     "def adds(a,b):\n  return a+ b\n" [:S [:defn [:Aname "adds"] [:args "a" "b"] [:flines [:return [:A [:Rname "a"] [:Rname "b"]]]]]]
-    "add2(2)" [:S [:fct [:Rname "add2"] [:D "2"]]]
+    "add2(2)" [:S [:fct [:Fname "add2"] [:D "2"]]]
     )
   (are [text res] (= res (second (m/node-eval {} (m/ope text))))
     "def add2(a):\n  return a+ 2\n" nil
-    "def add2(a):\n  return a+ 2\nadd2(40)" 42
-    "def add2(a):\n  b=a+2\n  return b\nadd2(20*2)" 42
-    "b=4\ndef add2(a):\n  b=a+2\n  return b\nadd2(10)" 12
-    "b=4\ndef add2(a):\n  b=a+2\n  return b\nadd2(10)\nb" 4)
-  (is (= (m/run-file "myprog/p-fct") 4))
+    "def add2(a):\n  return a+ 2\nadd2(40)" {:type :int :value 42}
+    "def add2(a):\n  b=a+2\n  return b\nadd2(20*2)" {:type :int :value 42}
+    "b=4\ndef add2(a):\n  b=a+2\n  return b\nadd2(10)" {:type :int :value 12}
+    "b=4\ndef add2(a):\n  b=a+2\n  return b\nadd2(10)\nb" {:type :int :value 4})
+  (is (= (m/run-file "myprog/p-fct") {:type :int :value 4}))
+
+  ;; solving Nick's test
+  (is (= (m/ope "def thri(f):\n  def h(x):\n    return f(f(f(x)))\n  return h")
+         [:S [:defn [:Aname "thri"] [:args "f"] [:flines [:defn [:Aname "h"] [:args "x"] [:flines [:return [:fct [:Fname "f"] [:fct [:Fname "f"] [:fct [:Fname "f"] [:Rname "x"]]]]]]] [:return [:Rname "h"]]]]]))
+  (is (= (first (m/node-eval {} (m/ope "def thri(f):\n  def h(x):\n    return f(f(f(x)))\n  return h")))
+         {"thri" {:type :fct :args ["f"], :flines [[:defn [:Aname "h"] [:args "x"] [:flines [:return [:fct [:Fname "f"] [:fct [:Fname "f"] [:fct [:Fname "f"] [:Rname "x"]]]]]]] [:return [:Rname "h"]]]}}))
+  (is (= (m/node-eval
+           {}
+           (m/ope "def thri(f):\n  def h(x):\n    return f(f(f(x)))\n  return h\ndef inc(x):\n  return x + 1"))
+         [{"thri" {:type :fct :args ["f"], :flines [[:defn [:Aname "h"] [:args "x"] [:flines [:return [:fct [:Fname "f"] [:fct [:Fname "f"] [:fct [:Fname "f"] [:Rname "x"]]]]]]] [:return [:Rname "h"]]]}, "inc" {:type :fct :args ["x"], :flines [[:return [:A [:Rname "x"] [:D "1"]]]]}} nil]))
+  (is (= (m/ope "x = 4\nthrice(thrice)(inc)(x)")
+         [:S [:assign [:Aname "x"] [:D "4"]] [:fct [:Fname [:fct [:Fname [:fct [:Fname "thrice"] [:Rname "thrice"]]] [:Rname "inc"]]] [:Rname "x"]]]))
+  (is (= (m/node-eval
+           {"thrice" {:type :fct :args ["f"], :flines [[:defn [:Aname "h"] [:args "x"] [:flines [:return [:fct [:Fname "f"] [:fct [:Fname "f"] [:fct [:Fname "f"] [:Rname "x"]]]]]]] [:return [:Rname "h"]]]}, "inc" {:type :fct :args ["x"], :flines [[:return [:A [:Rname "x"] [:D "1"]]]]}}
+           (m/ope "thrice(inc)"))
+          ;; (m/ope "x = 4\nthrice(thrice)(inc)(x)"))
+         []))
   )
 
 (deftest grm-and-node-eval
   (are [text grm res] (= [grm res] [(m/ope text) (m/node-eval {} (m/ope text))])
-    "2" [:S [:D "2"]] [{} 2]
-    "2*1+1" [:S [:A [:M [:D "2"] [:D "1"]] [:D "1"]]] [{} 3]
-    "2*(1+1)" [:S [:M [:D "2"] [:A [:D "1"] [:D "1"]]]] [{} 4]
-    "a=2" [:S [:assign [:Aname "a"] [:D "2"]]] [{"a" 2} nil]
-    "a=2\na*3" [:S [:assign [:Aname "a"] [:D "2"]] [:M [:Rname "a"] [:D "3"]]] [{"a" 2} 6]
-    "a=1+1+1\n2*a" [:S [:assign [:Aname "a"] [:A [:D "1"][:D "1"][:D "1"]]] [:M [:D "2"] [:Rname "a"]]] [{"a" 3} 6]
-    "def add2(a):\n  return a+2" [:S [:defn [:Aname "add2"] [:args "a"] [:flines [:return [:A [:Rname "a"] [:D "2"]]]]]] [{:fct {"add2" {:args ["a"] :flines [[:return [:A [:Rname "a"] [:D "2"]]]]}}} nil]
-    "def add2(a):\n  return a+2\nadd2(40)" [:S [:defn [:Aname "add2"] [:args "a"] [:flines [:return [:A [:Rname "a"] [:D "2"]]]]] [:fct [:Rname "add2"] [:D "40"]]] [{:fct {"add2" {:args ["a"] :flines [[:return [:A [:Rname "a"] [:D "2"]]]]}}} 42]
+    "2" [:S [:D "2"]] [{} {:type :int :value 2}]
+    "2*1+1" [:S [:A [:M [:D "2"] [:D "1"]] [:D "1"]]] [{} {:type :int :value 3}]
+    "2*(1+1)" [:S [:M [:D "2"] [:A [:D "1"] [:D "1"]]]] [{} {:type :int :value 4}]
+    "a=2" [:S [:assign [:Aname "a"] [:D "2"]]] [{"a" {:type :int :value 2}} nil]
+    "a=2\na*3" [:S [:assign [:Aname "a"] [:D "2"]] [:M [:Rname "a"] [:D "3"]]] [{"a" {:type :int :value 2}} {:type :int :value 6}]
+    "a=1+1+1\n2*a" [:S [:assign [:Aname "a"] [:A [:D "1"][:D "1"][:D "1"]]] [:M [:D "2"] [:Rname "a"]]] [{"a" {:type :int :value 3}} {:type :int :value 6}]
+    "def add2(a):\n  return a+2" [:S [:defn [:Aname "add2"] [:args "a"] [:flines [:return [:A [:Rname "a"] [:D "2"]]]]]] [{"add2" {:type :fct :args ["a"] :flines [[:return [:A [:Rname "a"] [:D "2"]]]]}} nil]
+    "def add2(a):\n  return a+2\nadd2(40)" [:S [:defn [:Aname "add2"] [:args "a"] [:flines [:return [:A [:Rname "a"] [:D "2"]]]]] [:fct [:Fname "add2"] [:D "40"]]] [{"add2" {:type :fct :args ["a"] :flines [[:return [:A [:Rname "a"] [:D "2"]]]]}} {:type :int :value 42}]
   ))
