@@ -162,3 +162,9 @@ addb(2)
 - Discussing with Gary (who worked this out weeks earlier), I need to replace nothing but save in the result the sub-memory defined within the function. Although my brain is certain there is a "simpler" way I have not been able to articulate it yet, so I am going to implement this solution instead.
 
 **Part 4 - memories (plural)**: Implementing "namespace" or different "level of memory": everything will be passed from line to line, a function will also now be associated to a memory within which some value might be defined. (pretty sure it's not clear but well ...) Each memory excetp the `global` one refers to another `higher level` memory, so a function has its memory refering to `global`. A function within a function has a memory refing to the first function's memory space which then refer to the `global` one. It is then possible to explore memories in order to find values when we run the function.
+
+The `eval-node` function now consistently returns `[m m-lvl res]`with:
+- `m` : all the memories
+- `m-lvl` : the memory within which we are currenlty working
+- `res` : the result in the form of a map with the `:type` (and the rest based on the type)
+
