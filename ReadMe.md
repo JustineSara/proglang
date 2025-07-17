@@ -155,3 +155,10 @@ addb(2)
 ```
 
 **Part 3 - eval**: in the new `node-eval` I code the resolution of the function. There in an "in-function memory" separated form the global `m` so they don't contaminate each other. We first solve the args, add them to that in-function memory and resolve the lines of the functions one by one until we reach `return` (or the end, upon which we have an error)
+
+**Challenge**: Nick's favourite test where we define a function within a function.
+- I first reworked the memory so that I do not need to know if the element is a value or a function to retrieve it.
+- I identified the issue as such (11th July): I need to replace named-elements by their value when those are defined inside the function, but not if they are defined outside of the function, but I do not know how to distinguish between the two. It goes further than that with Nick's test.
+- Discussing with Gary (who worked this out weeks earlier), I need to replace nothing but save in the result the sub-memory defined within the function. Although my brain is certain there is a "simpler" way I have not been able to articulate it yet, so I am going to implement this solution instead.
+
+**Part 4 - memories (plural)**: Implementing "namespace" or different "level of memory": everything will be passed from line to line, a function will also now be associated to a memory within which some value might be defined. (pretty sure it's not clear but well ...) Each memory excetp the `global` one refers to another `higher level` memory, so a function has its memory refering to `global`. A function within a function has a memory refing to the first function's memory space which then refer to the `global` one. It is then possible to explore memories in order to find values when we run the function.
