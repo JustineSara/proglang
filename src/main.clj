@@ -74,9 +74,7 @@
          nc)
     :assign (let [[aname expr] nc]
               (if (= (first aname) :Aname)
-                (let [res-n-e (node-eval m m-lvl expr)
-                      new-m (first res-n-e)
-                      value (last res-n-e)]
+                (let [[new-m _ value] (node-eval m m-lvl expr)]
                   [(assoc-in new-m [m-lvl (second aname)] value)
                    m-lvl
                    nil])
