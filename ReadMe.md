@@ -197,4 +197,53 @@ I can define that with a form of recursion with `if0 = if <blabla>: <blibli> \n`
 The other option is to do as Gary does: count the space and re-organise (and check) the grammar result based on those blocks of same-indentation. (aka: when being lazy earlier caught up with me and I reach the limit of the grammar approach)
 
 
+We decided to checkout the [python grammar][pyGRAMM] but it did not help me that much. It confirmed that they detect whole block at a time as I am trying to do. They also make use of look-ahead, negative look-ahead and order (like I am trying to do). Although it did not directly helped, it led us to the idea of handling level of indentation in pre-grammar rather than post-grammar like Gary is doing.
+
+Basically:
+* _my current way but it has a problem_: do everything with grammar and then compute the results.
+* _Gary's way of doing thing_: first apply the grammar which also detects the indent information; then post-process the tree to create the indented-blocks; and last compute results (Idea: Gary use the grammar and counts the ident, we could use the meta-data give by instaparse to do the same whitout re-working the grammar too much)
+* _new idea_: read line by line: for each line, check the indent (either match the expected indent level or go back one level closing the previous block); then feed the line (without the indent) to the grammar; do that until we have full blocks (for shell) or run the whole text (for files) and then compute
+
+Another idea is to use `insta/parses` that shows all possible results of one grammar when it is ambiguous. Then we could use the meta-data of both to identify which is correct = to which `if` the lonely `else` is assigned. This is closer to what Gary does with post-processing and might be also heavier in computation as we asked [`instaparse`][insta] to look for all possibilities (which might become a lot for bigger codes). So, let's not do this.
+```Clojure
+user=> (require '[instaparse.core :as insta])
+nil
+user=> (require '[main :reload true])
+nil
+user=> (in-ns 'main)
+#object[clojure.lang.Namespace 0x13868c41 "main"]
+main=> (insta/parses ope "if 0:\n  if 0:\n    a=1\n  else:\n    a=2\n")
+([:S [:if [:D "0"] [:flines [:if [:D "0"] [:flines [:assign [:Aname "a"] [:D "1"]]]]] [:else [:flines [:assign [:Aname "a"] [:D "2"]]]]]] [:S [:if [:D "0"] [:flines [:if [:D "0"] [:flines [:assign [:Aname "a"] [:D "1"]]] [:else [:flines [:assign [:Aname "a"] [:D "2"]]]]]]]])
+```
+
+Another option is to decide that every `if` needs its `else` and thus the earlier issue should not arise. It would be easy to make sure an `if` is always matched with an `else` in the grammar and move on. However, that means that the indent itself is not meaningful (it's not much meaningful at the moment and is thus the problem I am facing now).
+Even with this constraint, the indents need to be taken into account to differenciate between thos two situations:
+```Python "Situation 1"
+if A:
+  if B:
+    a = 1
+  else:
+    a = 2
+  b = 10
+else:
+  b = 20
+```
+and
+```Python "Situation 2"
+if A:
+  if B:
+    a = 1
+  else:
+    a = 2
+    b = 10
+else:
+  b = 20
+```
+
+In conclusion, I nee to explicitely deal with indents and count them (the horror!).
+
+I will try to implement the new idea we had, doing it with a pre-grammar process.
+[Note: at this juncture and for this commit, test has two failures due to the issue described above]
+
 [insta][https://github.com/engelberg/instaparse]
+[pyGRAMM][https://docs.python.org/3/reference/grammar.html]
