@@ -43,7 +43,7 @@
     e
     (if (= m-lvl :global)
       (do
-        (prn [:ERROR :does-not-exist elem])
+        #_(prn [:ERROR :does-not-exist elem])
         {:type :error
          :message (str "The value " elem " does not exist.")})
       (get-from-mem m (get-in m [m-lvl :__higher-mem__]) elem))))
@@ -74,9 +74,7 @@
          nc)
     :assign (let [[aname expr] nc]
               (if (= (first aname) :Aname)
-                (let [res-n-e (node-eval m m-lvl expr)
-                      new-m (first res-n-e)
-                      value (last res-n-e)]
+                (let [[new-m _ value] (node-eval m m-lvl expr)]
                   [(assoc-in new-m [m-lvl (second aname)] value)
                    m-lvl
                    nil])
@@ -137,26 +135,7 @@
              [new-m m-lvl [:error :fct :args-or-others]]))
   ))
 
-(defn opeeval
-  [txt m]
-  (let [tree (ope txt)
-        a (atom m)]
-    (insta/transform {:D (fn D [x] (edn/read-string x))
-                      :A (fn A [& r] (apply + r))
-                      :M (fn M [& r] (apply * r))
-                      :exp (fn exp [x] [:result x])
-                      :S (fn S  [& r] (concat [:result] r)) ;; we keep all the thingy ...
-                      ;; which means we are not handling statement, including q! at all.
-                      :assign (fn assign [x y] (if (= (first x) :Aname)
-                                                 (do
-                                                   (swap! a assoc (second x) y)
-                                                   [:mem (second x) y])
-                                                 [:error :assign]))
-                      :Rname (fn Rname [x] (get @a x))
-                      :Q (fn Q  [x] [:stop])}
-                     tree)))
-
-(defn run
+#_(defn run
   []
   (print "\nWelcome to proglang!\nThe programming language made for fun and learning :-)
          \n\nFor now, only the + and * operations exist.\nHave fun!\n\n")
@@ -184,11 +163,11 @@
   [f]
   (if (.exists (io/file f))
     (let [inp (slurp f)
-          outp (node-eval {} (ope inp))
+          outp (node-eval {} :global (ope inp))
           outpl (last outp)]
-      (println)
-      (println outp)
-      (println outpl)
+      #_(println)
+      #_(println outp)
+      #_(println outpl)
       outpl)
     (println "/!\\ The file " f "does not exist. Check your file path and name!")))
 
@@ -202,7 +181,7 @@
 (defn -main
   [& args]
   (case (count args)
-    0 (run)
+ #_#_   0 (run)
     1 (let [f (first args)]
         (if (or (= f "-u") (= f "-h"))
           (usage)

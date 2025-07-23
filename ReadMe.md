@@ -168,3 +168,4 @@ The `eval-node` function now consistently returns `[m m-lvl res]`with:
 - `m-lvl` : the memory within which we are currenlty working
 - `res` : the result in the form of a map with the `:type` (and the rest based on the type)
 
+**Clean up and Test**: done :) only the `run` function is not active anymore. I need to decide how to handle multi-lines (or not allow it) when in the shell.
