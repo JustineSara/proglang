@@ -142,4 +142,24 @@
              [:flines [:if [:D "0"]
                            [:flines [:assign [:Aname "a"] [:D "1"]]]]]
              [:else [:flines [:assign [:Aname "a"] [:D "3"]]]]]]
+    "if 0:\n  if 0:\n    a=1\n  else:\n    a=2\n  b=10\nelse:\n  b=20\na+b"
+    [:S [:if
+         [:D "0"]
+         [:flines
+          [:if [:D "0"]
+           [:flines [:assign [:Aname "a"] [:D "1"]]]
+           [:else [:flines [:assign [:Aname "a"] [:D "2"]]]]]
+          [:assign [:Aname "b"] [:D "10"]]]
+         [:else [:flines [:assign [:Aname "b"] [:D "20"]]]]]
+        [:A [:Rname "a"] [:Rname "b"]]]
+    "if 0:\n  if 0:\n    a=1\n  else:\n    a=2\n    b=10\nelse:\n  b=20\na+b"
+    [:S [:if
+         [:D "0"]
+         [:flines
+          [:if [:D "0"]
+           [:flines [:assign [:Aname "a"] [:D "1"]]]
+           [:else [:flines [:assign [:Aname "a"] [:D "2"]]
+                           [:assign [:Aname "b"] [:D "10"]]]]]]
+         [:else [:flines [:assign [:Aname "b"] [:D "20"]]]]]
+        [:A [:Rname "a"] [:Rname "b"]]]
     ))
