@@ -34,102 +34,118 @@
     <nl> = '\n'
     "))
 
+(defn get-from-mem
+  [m m-lvl elem]
+  ;; m = memories
+  ;; m-lvl = current level of memory
+  ;; elem = the name of the element
+  (prn [:GET-FROM-M m-lvl])
+  (if-let [e (get-in m [m-lvl elem])]
+    e
+    (if (= m-lvl :global)
+      (do
+        (prn [:ERROR :does-not-exist elem])
+        {:type :error
+         :message (str "The value " elem " does not exist.")})
+      (get-from-mem m (get-in m [m-lvl :__higher-mem__]) elem))))
+
 (defn node-eval
-  [m [nn & nc]]
+  [m m-lvl [nn & nc]]
   ;; m = memory
+  ;; m-lvl = current memory level
   ;; [nn nc] = node-name node-content
+  (prn (str "  >>>  " nn "  " m-lvl "  " (count (keys m))))
   (case nn
-    :D [m {:type :int
-           :value (edn/read-string (first nc))}]
-    :A [m {:type :int
-           :value (->> nc
-                       (map (fn [sub-n] (node-eval m sub-n)))
-                       (map second)
-                       (map :value)
-                       (apply + 0))}]
-    :M [m {:type :int
-           :value (->> nc
-                       (map (fn [sub-n] (node-eval m sub-n)))
-                       (map second)
-                       (map :value)
-                       (apply * 1))}]
-    :S (reduce (fn [[m r] n] (node-eval m n))
-               [m nil]
+    :S (reduce (fn [[m m-lvl _] n] (node-eval m m-lvl n))
+               [m m-lvl nil]
                nc)
+    :D [m m-lvl {:type :int
+           :value (edn/read-string (first nc))}]
+    :A (reduce
+         (fn [[m m-lvl r] sub-n]
+           (let [[Nm Nm-lvl Nr] (node-eval m m-lvl sub-n)]
+             [Nm m-lvl {:type :int :value (+ (:value r) (:value Nr))}]))
+         [m m-lvl {:type :int :value 0}]
+         nc)
+    :M [m m-lvl {:type :int
+                 :value (->> nc
+                             (map (fn [sub-n] (node-eval m m-lvl sub-n)))
+                             (map (fn [x] (nth x 2)))
+                             (map :value)
+                             (apply * 1))}]
     :assign (let [[aname expr] nc]
               (if (= (first aname) :Aname)
-                [(assoc m (second aname) (second (node-eval m expr))) nil]
-                [m [:error :assign]]))
-    :Rname [m (get m (first nc))]
+                (let [res-n-e (node-eval m m-lvl expr)
+                      new-m (first res-n-e)
+                      value (last res-n-e)]
+                  [(assoc-in new-m [m-lvl (second aname)] value)
+                   m-lvl
+                   nil])
+                [m m-lvl [:error :assign]]))
+    :Rname [m m-lvl (get-from-mem m m-lvl (first nc))]
     :defn (let [[aname args flines] nc]
             (if (and (= (first aname) :Aname)
                      (= (first args) :args)
                      (= (first flines) :flines))
-              [(assoc m (second aname) {:type :fct
-                                        :args (rest args)
-                                        :flines (rest flines)
-                                        }) nil]
-              #_(let [[mem-intern return-line]
-                    (loop [FLINES (rest flines)
-                           m-in-fct {}]
-                      (if (empty? FLINES)
-                        [m-in-fct [:error :fct :noreturn]]
-                        (let [[L & FLINES] FLINES]
-                          (if (= (first L) :return)
-                            [m-in-fct (second L)]
-                            (recur FLINES (first (node-eval m-in-fct L)))))))]
-                [(assoc m (second aname) {:type :fct
-                                          :args (rest args)
-                                          :flines (rest flines)
-                                          :fm {}
-                                          :mem-in mem-intern
-                                          :return return-line}) nil]
-                )
+              [(assoc-in m [m-lvl (second aname)]
+                         {:type :fct
+                          :args (rest args)
+                          :flines (rest flines)
+                          :m-lvl m-lvl
+                          })
+               m-lvl nil]
               [m [:error :defn]]))
-    :Fname (node-eval m [:fct (get-in m [(first nc) :flines])])
+    :Fname (node-eval m m-lvl [:fct (get-in m [m-lvl (first nc) :flines])])
     :fct (let [f-name-or-def? (->> nc
                                    first
                                    second)
-               f (if-let [fsaved (get m f-name-or-def?)]
-                   fsaved
-                   (node-eval m f-name-or-def?))
-               _ (prn [:fct :f f])
+               [m m-lvl f] (let [fsaved (get-from-mem m m-lvl f-name-or-def?)]
+                             (if (= (:type fsaved) :fct)
+                               [m m-lvl fsaved]
+                               (node-eval m m-lvl f-name-or-def?)))
+             #_#_  _ (prn [:fct :m :keys (keys m)])
+              #_#_ _ (prn [:fct :f f])
                argsName (:args f)
                flines (:flines f)
-               m-internal (:mem-in f)
-               r-lines (:return f)
-               args (->> nc
-                         rest
-                         (map (fn [sub-n] (node-eval m sub-n)))
-                         (map second)
+               current-m-name (get f :m-lvl m-lvl)
+               ;; m-internal (:mem-in f)
+               ;; r-lines (:return f)
+               [m _ args] (reduce
+                            (fn [[m m-lvl prevargs] n]
+                              (let [[nm _ argval] (node-eval m m-lvl n)]
+                                [nm m-lvl (conj prevargs argval)]))
+                            [m m-lvl []]
+                            (rest nc))
+               args (->> args
                          (map (fn [argN argV] [argN argV]) argsName))
-               m-in-fct (merge
-                          (reduce (fn [mm [argN argV]]
+               local-m-name (java.util.UUID/randomUUID)
+               m-in-fct (reduce (fn [mm [argN argV]]
                                   (assoc mm argN argV))
-                                m
+                                {:__higher-mem__ current-m-name}
                                 args)
-                          m-internal)
-               _ (prn [:fct :m-in-fct m-in-fct])
+               new-m (assoc m local-m-name m-in-fct)
+            #_#_   _ (prn [:fct :new-m new-m])
                check (and (= (->> nc first first) :Fname)
                           (= (count argsName) (count (rest nc))))]
            (if check
-             #_(node-eval m-in-fct r-lines)
+             #_(node-eval new-m m-in-fct r-lines)
              (loop [FLINES flines
-                    m-in-fct m-in-fct]
+                    new-m new-m]
                (if (empty? FLINES)
-                 [m [:error :fct :noreturn]]
+                 [new-m m-lvl [:error :fct :noreturn]]
                  (let [[L & FLINES] FLINES]
-                   (prn [:LOOP :l L])
-                   (prn [:LOOP :m m-in-fct])
+                   #_(prn [:LOOP :l L])
+                   #_(prn [:LOOP :m new-m])
                    (if (= (first L) :return)
-                     (do (prn [:LOOP :return (second (node-eval m-in-fct (second L)))])
-                     [m (second (node-eval m-in-fct (second L)))]
-                     )
-                     (do (prn [:LOOP :eval (node-eval m-in-fct L)])
-                     (recur FLINES (first (node-eval m-in-fct L)))
-                     )
+                     (let [res-n-e (node-eval new-m local-m-name (second L))
+                           _ (prn [:LOOP :return (nth res-n-e 2)])]
+                       (assoc res-n-e 1 m-lvl))
+                     (let [res-n-e (node-eval new-m local-m-name L)
+                           _ (prn [:LOOP :eval res-n-e])]
+                       (recur FLINES (first res-n-e))
+                       )
                      ))))
-             [m [:error :fct :args-or-others]]))
+             [new-m m-lvl [:error :fct :args-or-others]]))
 
   ))
 
