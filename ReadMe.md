@@ -169,3 +169,10 @@ The `eval-node` function now consistently returns `[m m-lvl res]`with:
 - `res` : the result in the form of a map with the `:type` (and the rest based on the type)
 
 **Clean up and Test**: done :) only the `run` function is not active anymore. I need to decide how to handle multi-lines (or not allow it) when in the shell.
+
+
+### Step 9: IF and then
+
+**Goal**: implement `if` and `then` (`then` being facultative).
+
+**Remark**: at the moment we have no booleans defined (we most likely will do so in the future), so we use the value `0` as `false` and everything else as `true`
