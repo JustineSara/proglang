@@ -176,3 +176,25 @@ The `eval-node` function now consistently returns `[m m-lvl res]`with:
 **Goal**: implement `if` and `then` (`then` being facultative).
 
 **Remark**: at the moment we have no booleans defined (we most likely will do so in the future), so we use the value `0` as `false` and everything else as `true`
+
+**step 1: grammar and trouble** Adding `if` and `else` in the grammar at first is simple. But, we want things to work when `else` is not defined, **and** we want things to work when there are `if`-s within `if`-s.
+
+But my current grammar does not count the size of the indent before any lines of code, it works for functions, but here is the glictch:
+```python
+if 0:
+  if 0:
+    a=1
+  else:
+    a=2
+```
+is interpreted by the grammar as if the `else` belonged to the first `if` rather than the first.
+
+To solve this I try using the _look-ahead_ capacity of [`instaparse`][insta]:
+I want my `else` to be precedeed by `'  '{m} if <other stuff for if> '\n' '  '{m}` with the two `m`-s being the same.
+I can define that with a form of recursion with `if0 = if <blabla>: <blibli> \n` then `if1 = '  ' if0 '  '`, `if2 = '  ' if1 '  '`, and so on. With `else` being precedeed by any `ifx`, except ... I do not know how to express this so it covers _all_ `ifx`.
+
+
+The other option is to do as Gary does: count the space and re-organise (and check) the grammar result based on those blocks of same-indentation. (aka: when being lazy earlier caught up with me and I reach the limit of the grammar approach)
+
+
+[insta][https://github.com/engelberg/instaparse]
