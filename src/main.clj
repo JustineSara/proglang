@@ -7,7 +7,9 @@
 (def ope
   (insta/parser
     "S = <nl>* sttmt (<nl>+ sttmt)* <nl>*
-    <sttmt> = defn | exp | assign | Q
+    <sttmt> = if | defn | exp | assign | Q
+    if = <'if '> <W*> exp <W*> <':'> flines (else)?
+    else = <nl> <'  '>* <'else'> <W*> <':'> <W*> flines
     defn = <'def '> <W*> Aname <W*> <'('> args <')'> <W*> <':'>  flines
     args = arg? (<W*> <','> <W*> arg)* <W*>
     <arg> = name
@@ -15,7 +17,7 @@
     return = <'return '> <W*> exp
     assign = Aname <W*> <'='> <W*> exp
     Aname = name
-    <exp> = A|M|D|Dp|Ap|Mp|Rname|fct
+    <exp> = A|M|D|Dp|Ap|Mp|Rname|fct|if
     fct = Fname <W*> <'('> <W*> exp? (<W*> <','> <W*> exp)* <W*> <')'>
     Fname = fct | name | namep
     <Ap> = <'('> A <')'>
@@ -29,7 +31,7 @@
     Rname = name | namep
     W = #' '
     Q = 'quit!'|'q!'
-    keywords = 'return' | 'def'
+    keywords = 'return' | 'def' | 'if' | 'else'
     <name> = !keywords #'[a-zA-Z]\\w*'
     <nl> = '\n'
     "))
