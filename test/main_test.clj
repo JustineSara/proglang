@@ -116,3 +116,30 @@
   (is (=
        (m/run-file "myprog/nick-fct")
        {:type :int :value 42})))
+
+(deftest ifimplementation
+  ;; testing if and if-then (no boolean)
+  (are [txt gram] (= (m/ope txt) gram )
+    "if 0 :\n  1" [:S [:if [:D "0"] [:flines [:D "1"]]]]
+    "if 0:\n  a=1\nelse:\n  a=2\na" [:S
+                                     [:if [:D "0"]
+                                          [:flines [:assign [:Aname "a"] [:D "1"]]]
+                                          [:else [:flines [:assign [:Aname "a"] [:D "2"]]]]]
+                                     [:Rname "a"]]
+    "if 0:\n  if 0:\n    a=1\n  else:\n    a=2\nelse:\n  a=3"
+    [:S [:if [:D "0"]
+             [:flines [:if [:D "0"]
+                           [:flines [:assign [:Aname "a"] [:D "1"]]]
+                           [:else [:flines [:assign [:Aname "a"] [:D "2"]]]]]]
+             [:else [:flines [:assign [:Aname "a"] [:D "3"]]]]]]
+    "if 0:\n  if 0:\n    a=1\n  else:\n    a=2\n"
+    [:S [:if [:D "0"]
+             [:flines [:if [:D "0"]
+                           [:flines [:assign [:Aname "a"] [:D "1"]]]
+                           [:else [:flines [:assign [:Aname "a"] [:D "2"]]]]]]]]
+    "if 0:\n  if 0:\n    a=1\nelse:\n  a=3"
+    [:S [:if [:D "0"]
+             [:flines [:if [:D "0"]
+                           [:flines [:assign [:Aname "a"] [:D "1"]]]]]
+             [:else [:flines [:assign [:Aname "a"] [:D "3"]]]]]]
+    ))
