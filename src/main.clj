@@ -11,12 +11,13 @@
     defn = <'def '> <W*> Aname <W*> <'('> args <')'> <W*> <':'>  flines
     args = arg? (<W*> <','> <W*> arg)* <W*>
     <arg> = name
-    flines = (<nl> <'  '> (return | exp | assign))+
+    flines = (<nl> <'  '>+ (return | exp | assign | defn))+
     return = <'return '> <W*> exp
     assign = Aname <W*> <'='> <W*> exp
     Aname = name
     <exp> = A|M|D|Dp|Ap|Mp|Rname|fct
-    fct = Rname <W*> <'('> <W*> exp? (<W*> <','> <W*> exp)* <W*> <')'>
+    fct = Fname <W*> <'('> <W*> exp? (<W*> <','> <W*> exp)* <W*> <')'>
+    Fname = fct | name | namep
     <Ap> = <'('> A <')'>
     <Mp> = <'('> M <')'>
     <Dp> = <'('> D <')'>
@@ -38,15 +39,20 @@
   ;; m = memory
   ;; [nn nc] = node-name node-content
   (case nn
-    :D [m (edn/read-string (first nc))]
-    :A [m (->> nc
-               (map (fn [sub-n] (node-eval m sub-n)))
-               (map second)
-               (apply + 0))]
-    :M [m (->> nc
-               (map (fn [sub-n] (node-eval m sub-n)))
-               (map second)
-               (apply * 1))]
+    :D [m {:type :int
+           :value (edn/read-string (first nc))}]
+    :A [m {:type :int
+           :value (->> nc
+                       (map (fn [sub-n] (node-eval m sub-n)))
+                       (map second)
+                       (map :value)
+                       (apply + 0))}]
+    :M [m {:type :int
+           :value (->> nc
+                       (map (fn [sub-n] (node-eval m sub-n)))
+                       (map second)
+                       (map :value)
+                       (apply * 1))}]
     :S (reduce (fn [[m r] n] (node-eval m n))
                [m nil]
                nc)
@@ -59,33 +65,70 @@
             (if (and (= (first aname) :Aname)
                      (= (first args) :args)
                      (= (first flines) :flines))
-              [(assoc-in m [:fct (second aname)] {:args (rest args) :flines (rest flines)}) nil]
+              [(assoc m (second aname) {:type :fct
+                                        :args (rest args)
+                                        :flines (rest flines)
+                                        }) nil]
+              #_(let [[mem-intern return-line]
+                    (loop [FLINES (rest flines)
+                           m-in-fct {}]
+                      (if (empty? FLINES)
+                        [m-in-fct [:error :fct :noreturn]]
+                        (let [[L & FLINES] FLINES]
+                          (if (= (first L) :return)
+                            [m-in-fct (second L)]
+                            (recur FLINES (first (node-eval m-in-fct L)))))))]
+                [(assoc m (second aname) {:type :fct
+                                          :args (rest args)
+                                          :flines (rest flines)
+                                          :fm {}
+                                          :mem-in mem-intern
+                                          :return return-line}) nil]
+                )
               [m [:error :defn]]))
-    :fct (let [fname (->> nc
-                          first
-                          second)
-               argsName (get-in m [:fct fname :args])
-               flines (get-in m [:fct fname :flines])
+    :Fname (node-eval m [:fct (get-in m [(first nc) :flines])])
+    :fct (let [f-name-or-def? (->> nc
+                                   first
+                                   second)
+               f (if-let [fsaved (get m f-name-or-def?)]
+                   fsaved
+                   (node-eval m f-name-or-def?))
+               _ (prn [:fct :f f])
+               argsName (:args f)
+               flines (:flines f)
+               m-internal (:mem-in f)
+               r-lines (:return f)
                args (->> nc
                          rest
                          (map (fn [sub-n] (node-eval m sub-n)))
                          (map second)
                          (map (fn [argN argV] [argN argV]) argsName))
-               m-in-fct (reduce (fn [mm [argN argV]]
+               m-in-fct (merge
+                          (reduce (fn [mm [argN argV]]
                                   (assoc mm argN argV))
                                 m
                                 args)
-               check (and (= (->> nc first first) :Rname)
+                          m-internal)
+               _ (prn [:fct :m-in-fct m-in-fct])
+               check (and (= (->> nc first first) :Fname)
                           (= (count argsName) (count (rest nc))))]
            (if check
+             #_(node-eval m-in-fct r-lines)
              (loop [FLINES flines
                     m-in-fct m-in-fct]
                (if (empty? FLINES)
                  [m [:error :fct :noreturn]]
                  (let [[L & FLINES] FLINES]
+                   (prn [:LOOP :l L])
+                   (prn [:LOOP :m m-in-fct])
                    (if (= (first L) :return)
+                     (do (prn [:LOOP :return (second (node-eval m-in-fct (second L)))])
                      [m (second (node-eval m-in-fct (second L)))]
-                     (recur FLINES (first (node-eval m-in-fct L)))))))
+                     )
+                     (do (prn [:LOOP :eval (node-eval m-in-fct L)])
+                     (recur FLINES (first (node-eval m-in-fct L)))
+                     )
+                     ))))
              [m [:error :fct :args-or-others]]))
 
   ))
