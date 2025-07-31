@@ -2,6 +2,14 @@
   (:require [clojure.test :refer [deftest is are]]
             [main :as m]))
 
+(defn get-res
+  [txt]
+  (->> txt
+       m/from-text-to-gram
+       (m/new-eval {} 0)
+       last
+       :value))
+
 (deftest istrue
   (is (= 1 1)))
 
@@ -230,3 +238,17 @@
     "True == (2 == (1+1))" true
     "if 1+1==2:\n  1\nelse:\n  2" 1)
   )
+
+(deftest returns
+  (let [txt "def te():\n  return 1\n  return 2\nte()"]
+    (is (= 1
+           (->> txt
+                m/from-text-to-gram
+                (m/new-eval {} 0)
+                last
+                :value)))))
+
+(deftest negativenumb
+  (are [txt res] (= res (get-res txt))
+    "4+-5" -1
+    "-5*2+4" -6))
