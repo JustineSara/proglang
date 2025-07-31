@@ -26,7 +26,7 @@
     <namep> = <'('> name <')'>
     A = (elem|M|Mp|Ap) (<W*> <'+'> <W*> (elem|M|Mp|Ap))+
     M = (elem|Mp|Ap) (<W*> <'*'> <W*> (elem|Ap|Mp))+
-    D = #'\\d+'
+    D = #'-?\\d+'
     <Btest> = Bequ|BequP
     Bequ = (simple-op|Rname|fct|BequP) (<W*> <'=='> <W*> (simple-op|Rname|fct|BequP))+
     <BequP> = <'('> <W*> Bequ <W*> <')'>

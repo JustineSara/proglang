@@ -266,5 +266,12 @@ I will try to implement the new idea we had, doing it with a pre-grammar process
 
 **step 4**: add the `==` operator. It's kind of messy and I first planned to make it easy to add other operators related to booleans but I don't think it would be that easy with how I added it to the grammar. TLDR: it works but hte grammar is messy.
 
+## Negative Numbers, Factoriel and Fibonacci
+
+**goal**: be able to use recursion to code factoriels and fibonacci.
+
+**step 1**: we need to be able to decrease in value so we need negative numbers or substractions. Because it is simpler, I added the `-` sign for numbers. So `4+-5` is correct for this language while `4-5` will not work.
+
+
 [insta][https://github.com/engelberg/instaparse]
 [pyGRAMM][https://docs.python.org/3/reference/grammar.html]
