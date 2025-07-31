@@ -177,11 +177,16 @@
              [new-m m-lvl [:error :fct :args-or-others]]))
     :if (let [[condition is-true is-false] nc
               evaluated-condition (last (new-eval m m-lvl condition))]
-          (if (zero? (:value evaluated-condition))
+          (if (or
+                (and (= (:type evaluated-condition) :int)
+                     (not (zero? (:value evaluated-condition))))
+                (and (= (:type evaluated-condition) :boolean)
+                     (:value evaluated-condition)))
+            (new-eval m m-lvl is-true)
             (if (= (first is-false) :else)
               (new-eval m m-lvl (assoc is-false 0 :S))
               [m m-lvl nil])
-            (new-eval m m-lvl is-true)))
+            ))
   ))
 
 #_(defn run
