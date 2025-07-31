@@ -1,0 +1,9 @@
+def fact(n):
+  if n == 0:
+    res = 1
+  else:
+    a = fact(n + -1)
+    res = n * a
+  return res
+
+fact(10)

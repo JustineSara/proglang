@@ -272,6 +272,15 @@ I will try to implement the new idea we had, doing it with a pre-grammar process
 
 **step 1**: we need to be able to decrease in value so we need negative numbers or substractions. Because it is simpler, I added the `-` sign for numbers. So `4+-5` is correct for this language while `4-5` will not work.
 
+**things that don't work**:
+- summing or multiplying functions do not work. I forgot to add the option in the grammar. So `f(1)+f(2)` will fail at the grammar level. But `a=f(1)`, `b=f(2)` and `a+b` will succeed
+- having a function's `return` inside a `if` does not work as expected. We can work around this by defining a value in the `if` and returning that value outside the `if`
+
+Both those cases _should_ be solved but both have a work-around which I will use (for now at least).
+
+The `factorial` function defined in `myprog/factorial` works :)
+
+Using the same work-arounds I also wrote a `fibonacci` recursive function which works.
 
 [insta][https://github.com/engelberg/instaparse]
 [pyGRAMM][https://docs.python.org/3/reference/grammar.html]
