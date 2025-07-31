@@ -250,7 +250,7 @@ I will try to implement the new idea we had, doing it with a pre-grammar process
 - a block-creating function that uses check the indents and arrange the tree based on those
 - a `from-text-to-gram` function that takes the text, splits it by lines and calls the block-creating function and return only the tree.
 
-At this stage I am not handlling blank lines, which means the last uncommented test does fail.
+
 
 
 [insta][https://github.com/engelberg/instaparse]
