@@ -98,6 +98,10 @@
                nc)
     :D [m m-lvl {:type :int
                  :value (edn/read-string (first nc))}]
+    :B [m m-lvl (case (first nc)
+                  "True" {:type :boolean :value true}
+                  "False" {:type :boolean :value false}
+                  {:type :error :message (str (first nc) " is not a boolean, use 'True' or 'False'.")})]
     :A (reduce
          (fn [[m m-lvl r] sub-n]
            (let [[Nm Nm-lvl Nr] (new-eval m m-lvl sub-n)]
