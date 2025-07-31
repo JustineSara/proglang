@@ -252,3 +252,9 @@
   (are [txt res] (= res (get-res txt))
     "4+-5" -1
     "-5*2+4" -6))
+
+(deftest recursion
+  (is (= (m/run-file "myprog/factorial")
+         {:type :int :value 3628800}))
+  (is (= (m/run-file "myprog/fibonacci")
+         {:type :int :value 89})))
