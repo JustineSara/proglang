@@ -258,7 +258,9 @@ I will try to implement the new idea we had, doing it with a pre-grammar process
 
 **goal**: have a new type of elements: the boolean.
 
-**step 1**: add to the grammar. (seems too easy, what am I missing?)
+**step 1**: add to the grammar. (seems too easy, what am I missing?). Let's note that no operation with booleans.
+
+**steap 2**: eval booleans. we are doing nothing with them appart from returning them
 
 [insta][https://github.com/engelberg/instaparse]
 [pyGRAMM][https://docs.python.org/3/reference/grammar.html]

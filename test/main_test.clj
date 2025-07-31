@@ -188,5 +188,15 @@
     "if True:\n  1" [:S [:if [:B "True"] [:S [:D "1"]]]]
     )
 
-  ;; test eval
+  ;; test eval of booleans
+  (are [txt res] (= (->> txt
+                        m/from-text-to-gram
+                        (m/new-eval {} 0)
+                        last
+                        :value) res)
+    "True" true
+    "False" false
+    "if 1:\n  True\nelse:\n  False" true
+    "if 0:\n  True\nelse:\n  False" false
+    )
   )
