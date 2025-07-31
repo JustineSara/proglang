@@ -171,7 +171,7 @@ The `eval-node` function now consistently returns `[m m-lvl res]`with:
 **Clean up and Test**: done :) only the `run` function is not active anymore. I need to decide how to handle multi-lines (or not allow it) when in the shell.
 
 
-### Step 9: IF and then
+### Step 9: IF and else
 
 **Goal**: implement `if` and `then` (`then` being facultative).
 
@@ -253,6 +253,10 @@ I will try to implement the new idea we had, doing it with a pre-grammar process
 **step 3**: evaluate `if`. With the tree properly organised, and using `clojure`'s `if`, it is relatively easy to implement.
 
 **oupsi**: in Python `0` is `False` and all else is `True` so I am changing this.
+
+## step 10: boolean type
+
+**goal**: have a new type of elements: the boolean.
 
 [insta][https://github.com/engelberg/instaparse]
 [pyGRAMM][https://docs.python.org/3/reference/grammar.html]
