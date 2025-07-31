@@ -16,7 +16,7 @@
     return = <'return '> <W*> exp <W*>
     assign = Aname <W*> <'='> <W*> exp <W*>
     Aname = name
-    <exp> = simple-op|Rname|fct|if
+    <exp> = simple-op|Rname|fct|Btest
     <simple-op> = A|M|D|Dp|Ap|Mp|B|Bp
     fct = Fname <W*> <'('> <W*> exp? (<W*> <','> <W*> exp)* <W*> <')'> <W*>
     Fname = fct | name | namep
@@ -27,6 +27,9 @@
     A = (elem|M|Mp|Ap) (<W*> <'+'> <W*> (elem|M|Mp|Ap))+
     M = (elem|Mp|Ap) (<W*> <'*'> <W*> (elem|Ap|Mp))+
     D = #'\\d+'
+    <Btest> = Bequ|BequP
+    Bequ = (simple-op|Rname|fct|BequP) (<W*> <'=='> <W*> (simple-op|Rname|fct|BequP))+
+    <BequP> = <'('> <W*> Bequ <W*> <')'>
     <Bp> = <'('> <W*> B <W*> <')'>
     B = 'True' | 'False'
     <elem> = D | Dp | Rname
@@ -102,6 +105,11 @@
                   "True" {:type :boolean :value true}
                   "False" {:type :boolean :value false}
                   {:type :error :message (str (first nc) " is not a boolean, use 'True' or 'False'.")})]
+    :Bequ [m m-lvl {:type :boolean
+                    :value (->> nc
+                                (map (fn [nn] (new-eval m m-lvl nn)))
+                                (map last)
+                                (apply =))}]
     :A (reduce
          (fn [[m m-lvl r] sub-n]
            (let [[Nm Nm-lvl Nr] (new-eval m m-lvl sub-n)]

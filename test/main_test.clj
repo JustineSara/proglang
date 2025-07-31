@@ -202,4 +202,31 @@
   ;; test booleans in ifs
     "if True:\n  1\nelse:\n  2" 1
     "if False:\n  1\nelse:\n  2" 2)
+
+  ;; test the == operator
+  (are [txt gram] (= (m/from-text-to-gram txt) gram)
+    "1 == 1" [:S [:Bequ [:D "1"] [:D "1"]]]
+    "2+2 == 2*2 == (1+1)*2" [:S [:Bequ
+                                 [:A [:D "2"] [:D "2"]]
+                                 [:M [:D "2"] [:D "2"]]
+                                 [:M [:A [:D "1"] [:D "1"]] [:D "2"]]]]
+    "True == (2 == (1+1))" [:S [:Bequ
+                                [:B "True"]
+                                [:Bequ
+                                 [:D "2"]
+                                 [:A [:D "1"] [:D "1"]]]]])
+  (are [txt res] (= (->> txt
+                         m/from-text-to-gram
+                         (m/new-eval {} 0)
+                         last
+                         :value)
+                    res)
+    "1 == 1" true
+    "1 ==2" false
+    "2+2 == 2*2 == (1+1)*2" true
+    "42 == 2*2 == (1+1)*2" false
+    "2+2 == 42 == (1+1)*2" false
+    "2+2 == 2*2 == 42" false
+    "True == (2 == (1+1))" true
+    "if 1+1==2:\n  1\nelse:\n  2" 1)
   )

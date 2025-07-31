@@ -264,5 +264,7 @@ I will try to implement the new idea we had, doing it with a pre-grammar process
 
 **step 3**: add booleans in `if` check.
 
+**step 4**: add the `==` operator. It's kind of messy and I first planned to make it easy to add other operators related to booleans but I don't think it would be that easy with how I added it to the grammar. TLDR: it works but hte grammar is messy.
+
 [insta][https://github.com/engelberg/instaparse]
 [pyGRAMM][https://docs.python.org/3/reference/grammar.html]
