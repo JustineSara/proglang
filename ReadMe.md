@@ -187,7 +187,7 @@ if 0:
   else:
     a=2
 ```
-is interpreted by the grammar as if the `else` belonged to the first `if` rather than the first.
+is interpreted by the grammar as if the `else` belonged to the first `if` rather than the second.
 
 To solve this I try using the _look-ahead_ capacity of [`instaparse`][insta]:
 I want my `else` to be precedeed by `'  '{m} if <other stuff for if> '\n' '  '{m}` with the two `m`-s being the same.
