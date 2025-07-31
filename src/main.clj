@@ -17,7 +17,7 @@
     assign = Aname <W*> <'='> <W*> exp <W*>
     Aname = name
     <exp> = simple-op|Rname|fct|if
-    <simple-op> = A|M|D|Dp|Ap|Mp
+    <simple-op> = A|M|D|Dp|Ap|Mp|B|Bp
     fct = Fname <W*> <'('> <W*> exp? (<W*> <','> <W*> exp)* <W*> <')'> <W*>
     Fname = fct | name | namep
     <Ap> = <'('> A <')'>
@@ -27,11 +27,13 @@
     A = (elem|M|Mp|Ap) (<W*> <'+'> <W*> (elem|M|Mp|Ap))+
     M = (elem|Mp|Ap) (<W*> <'*'> <W*> (elem|Ap|Mp))+
     D = #'\\d+'
+    <Bp> = <'('> <W*> B <W*> <')'>
+    B = 'True' | 'False'
     <elem> = D | Dp | Rname
     Rname = name | namep
     W = #' '
     Q = 'quit!'|'q!'
-    keywords = 'return' | 'def' | 'if' | 'else'
+    keywords = 'return' | 'def' | 'if' | 'else' | 'True' | 'False'
     <name> = !keywords #'[a-zA-Z]\\w*'
     <nl> = '\n'
     "))
