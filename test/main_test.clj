@@ -162,19 +162,19 @@
          [:else [:assign [:Aname "b"] [:D "20"]]]]
         [:A [:Rname "a"] [:Rname "b"]]])
   (are [txt res] (= (:value (last (m/new-eval {} :global (m/from-text-to-gram txt)))) res)
-    "if 0 :\n  1" 1
-    "if 0:\n  a=1\nelse:\n  a=2\na" 1
-    "if 1:\n  a=1\nelse:\n  a=2\na" 2
-    "if 0:\n  if 0:\n    a=1\n  else:\n    a=2\nelse:\n  a=3\na" 1
-    "if 0:\n  if 1:\n    a=1\n  else:\n    a=2\nelse:\n  a=3\na" 2
-    "if 1:\n  if 0:\n    a=1\n  else:\n    a=2\nelse:\n  a=3\na" 3
-    "if 0:\n  if 0:\n    a=1\n  else:\n    a=2\na" 1
-    "if 0:\n  if 1:\n    a=1\n  else:\n    a=2\na" 2
-    "if 1:\n  if 0:\n    a=1\n  else:\n    a=2\na" nil
-    "if 0:\n  if 0:\n    a=1\n  else:\n    a=2\n  b=10\nelse:\n  b=20\na+b" 11
-    "if 0:\n  if 1:\n    a=1\n  else:\n    a=2\n  b=10\nelse:\n  b=20\na+b" 12
-    "a=0\nif 1:\n  if 1:\n    a=1\n  else:\n    a=2\n  b=10\nelse:\n  b=20\na+b" 20
-    "a=0\nb=0\nif 0:\n  if 0:\n    a=1\n  else:\n    a=2\n    b=10\nelse:\n  b=20\na+b" 1
-    "a=0\nb=0\nif 0:\n  if 1:\n    a=1\n  else:\n    a=2\n    b=10\nelse:\n  b=20\na+b" 12
-    "a=0\nb=0\nif 1:\n  if 0:\n    a=1\n  else:\n    a=2\n    b=10\nelse:\n  b=20\na+b" 20)
+    "if 1 :\n  1" 1
+    "if 1:\n  a=1\nelse:\n  a=2\na" 1
+    "if 0:\n  a=1\nelse:\n  a=2\na" 2
+    "if 1:\n  if 1:\n    a=1\n  else:\n    a=2\nelse:\n  a=3\na" 1
+    "if 1:\n  if 0:\n    a=1\n  else:\n    a=2\nelse:\n  a=3\na" 2
+    "if 0:\n  if 1:\n    a=1\n  else:\n    a=2\nelse:\n  a=3\na" 3
+    "if 1:\n  if 1:\n    a=1\n  else:\n    a=2\na" 1
+    "if 1:\n  if 0:\n    a=1\n  else:\n    a=2\na" 2
+    "if 0:\n  if 1:\n    a=1\n  else:\n    a=2\na" nil
+    "if 1:\n  if 1:\n    a=1\n  else:\n    a=2\n  b=10\nelse:\n  b=20\na+b" 11
+    "if 1:\n  if 0:\n    a=1\n  else:\n    a=2\n  b=10\nelse:\n  b=20\na+b" 12
+    "a=0\nif 0:\n  if 0:\n    a=1\n  else:\n    a=2\n  b=10\nelse:\n  b=20\na+b" 20
+    "a=0\nb=0\nif 1:\n  if 1:\n    a=1\n  else:\n    a=2\n    b=10\nelse:\n  b=20\na+b" 1
+    "a=0\nb=0\nif 1:\n  if 0:\n    a=1\n  else:\n    a=2\n    b=10\nelse:\n  b=20\na+b" 12
+    "a=0\nb=0\nif 0:\n  if 1:\n    a=1\n  else:\n    a=2\n    b=10\nelse:\n  b=20\na+b" 20)
   )

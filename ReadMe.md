@@ -252,6 +252,7 @@ I will try to implement the new idea we had, doing it with a pre-grammar process
 
 **step 3**: evaluate `if`. With the tree properly organised, and using `clojure`'s `if`, it is relatively easy to implement.
 
+**oupsi**: in Python `0` is `False` and all else is `True` so I am changing this.
 
 [insta][https://github.com/engelberg/instaparse]
 [pyGRAMM][https://docs.python.org/3/reference/grammar.html]
