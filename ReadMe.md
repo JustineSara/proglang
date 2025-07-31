@@ -250,7 +250,7 @@ I will try to implement the new idea we had, doing it with a pre-grammar process
 - a block-creating function that uses check the indents and arrange the tree based on those
 - a `from-text-to-gram` function that takes the text, splits it by lines and calls the block-creating function and return only the tree.
 
-
+**step 3**: evaluate `if`. With the tree properly organised, and using `clojure`'s `if`, it is relatively easy to implement.
 
 
 [insta][https://github.com/engelberg/instaparse]
