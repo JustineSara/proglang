@@ -201,6 +201,13 @@
                        )
                      ))))
              [new-m m-lvl [:error :fct :args-or-others]]))
+    :if (let [[condition is-true is-false] nc
+              evaluated-condition (last (new-eval m m-lvl condition))]
+          (if (zero? (:value evaluated-condition))
+            (new-eval m m-lvl is-true)
+            (if (= (first is-false) :else)
+              (new-eval m m-lvl (assoc is-false 0 :S))
+              [m m-lvl nil])))
   ))
 
 (defn node-eval
