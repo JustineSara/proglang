@@ -178,3 +178,15 @@
     "a=0\nb=0\nif 1:\n  if 0:\n    a=1\n  else:\n    a=2\n    b=10\nelse:\n  b=20\na+b" 12
     "a=0\nb=0\nif 0:\n  if 1:\n    a=1\n  else:\n    a=2\n    b=10\nelse:\n  b=20\na+b" 20)
   )
+
+(deftest bool
+
+  ;; test grammar
+  (are [txt gram] (= (m/from-text-to-gram txt) gram)
+    "True" [:S [:B "True"]]
+    "False" [:S [:B "False"]]
+    "if True:\n  1" [:S [:if [:B "True"] [:S [:D "1"]]]]
+    )
+
+  ;; test eval
+  )
