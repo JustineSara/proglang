@@ -240,10 +240,18 @@ else:
   b = 20
 ```
 
-In conclusion, I nee to explicitely deal with indents and count them (the horror!).
+In conclusion, I need to explicitely deal with indents and count them (the horror!).
 
 I will try to implement the new idea we had, doing it with a pre-grammar process.
-[Note: at this juncture and for this commit, test has two failures due to the issue described above]
+(Note: at this juncture and for this commit, test has two failures due to the issue described above)
+
+**step 2**: new grammar aand block management. I have:
+- a new grammar that manages only one line at a time. It always returns [:S [:INDENT ...] [...]]
+- a block-creating function that uses check the indents and arrange the tree based on those
+- a `from-text-to-gram` function that takes the text, splits it by lines and calls the block-creating function and return only the tree.
+
+At this stage I am not handlling blank lines, which means the last uncommented test does fail.
+
 
 [insta][https://github.com/engelberg/instaparse]
 [pyGRAMM][https://docs.python.org/3/reference/grammar.html]
