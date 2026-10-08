@@ -74,8 +74,8 @@
   (is (= (m/run-file "myprog/p-fct") {:type :int :value 4})))
 
 
-#_(deftest grm-and-node-eval
-  (are [text grm res] (= [grm res] [(m/ope text) (m/node-eval {} :global (m/ope text))])
+(deftest grm-and-node-eval
+  (are [text grm res] (= [grm res] [(m/from-text-to-gram text) (m/new-eval {} :global (m/from-text-to-gram text))])
     "2" [:S [:D "2"]] [{} :global {:type :int :value 2}]
     "2*1+1" [:S [:A [:M [:D "2"] [:D "1"]] [:D "1"]]] [{} :global {:type :int :value 3}]
     "2*(1+1)" [:S [:M [:D "2"] [:A [:D "1"] [:D "1"]]]] [{} :global {:type :int :value 4}]
@@ -91,11 +91,11 @@
     [{:global {"add2" {:type :fct :args ["a"] :flines [[:return [:A [:Rname "a"] [:D "2"]]]] :m-lvl :global}}} :global nil]
   ))
 
-#_(deftest step8-mem
+(deftest step8-mem
   (let [text "def add2(a):\n  return a+2\nadd2(40)"
         E-gram [:S [:defn [:Aname "add2"] [:args "a"] [:flines [:return [:A [:Rname "a"] [:D "2"]]]]] [:fct [:Fname "add2"] [:D "40"]]]
-        C-gram (m/ope text)
-        [C-m _ C-res] (m/node-eval {} :global C-gram)
+        C-gram (m/from-text-to-gram text)
+        [C-m _ C-res] (m/new-eval {} :global C-gram)
         C-mem-global (:global C-m)
         m-keys (keys C-m)
         not-global-key (if (= :global (first m-keys)) (second m-keys) (first m-keys))
@@ -108,58 +108,57 @@
       E-res C-res
       E-mem-global C-mem-global
       E-mem-fct C-mem-fct
-
     )))
 
-#_(deftest NickTest
+(deftest NickTest
   ;; solving Nick's test
   (is (=
        (m/run-file "myprog/nick-fct")
        {:type :int :value 42})))
 
-#_(deftest ifimplementation
+(deftest ifimplementation
   ;; testing if and if-then (no boolean)
-  (are [txt gram] (= (m/ope txt) gram )
-    "if 0 :\n  1" [:S [:if [:D "0"] [:flines [:D "1"]]]]
+  (are [txt gram] (= (m/from-text-to-gram txt) gram )
+    "if 0 :\n  1" [:S [:if [:D "0"] [:S [:D "1"]]]]
     "if 0:\n  a=1\nelse:\n  a=2\na" [:S
                                      [:if [:D "0"]
-                                          [:flines [:assign [:Aname "a"] [:D "1"]]]
-                                          [:else [:flines [:assign [:Aname "a"] [:D "2"]]]]]
+                                          [:S [:assign [:Aname "a"] [:D "1"]]]
+                                          [:else [:assign [:Aname "a"] [:D "2"]]]]
                                      [:Rname "a"]]
     "if 0:\n  if 0:\n    a=1\n  else:\n    a=2\nelse:\n  a=3"
     [:S [:if [:D "0"]
-             [:flines [:if [:D "0"]
-                           [:flines [:assign [:Aname "a"] [:D "1"]]]
-                           [:else [:flines [:assign [:Aname "a"] [:D "2"]]]]]]
-             [:else [:flines [:assign [:Aname "a"] [:D "3"]]]]]]
+             [:S [:if [:D "0"]
+                      [:S [:assign [:Aname "a"] [:D "1"]]]
+                      [:else [:assign [:Aname "a"] [:D "2"]]]]]
+             [:else [:assign [:Aname "a"] [:D "3"]]]]]
     "if 0:\n  if 0:\n    a=1\n  else:\n    a=2\n"
     [:S [:if [:D "0"]
-             [:flines [:if [:D "0"]
-                           [:flines [:assign [:Aname "a"] [:D "1"]]]
-                           [:else [:flines [:assign [:Aname "a"] [:D "2"]]]]]]]]
+             [:S [:if [:D "0"]
+                      [:S [:assign [:Aname "a"] [:D "1"]]]
+                      [:else [:assign [:Aname "a"] [:D "2"]]]]]]]
     "if 0:\n  if 0:\n    a=1\nelse:\n  a=3"
     [:S [:if [:D "0"]
-             [:flines [:if [:D "0"]
-                           [:flines [:assign [:Aname "a"] [:D "1"]]]]]
-             [:else [:flines [:assign [:Aname "a"] [:D "3"]]]]]]
+             [:S [:if [:D "0"]
+                      [:S [:assign [:Aname "a"] [:D "1"]]]]]
+             [:else [:assign [:Aname "a"] [:D "3"]]]]]
     "if 0:\n  if 0:\n    a=1\n  else:\n    a=2\n  b=10\nelse:\n  b=20\na+b"
     [:S [:if
          [:D "0"]
-         [:flines
+         [:S
           [:if [:D "0"]
-           [:flines [:assign [:Aname "a"] [:D "1"]]]
-           [:else [:flines [:assign [:Aname "a"] [:D "2"]]]]]
+           [:S [:assign [:Aname "a"] [:D "1"]]]
+           [:else [:assign [:Aname "a"] [:D "2"]]]]
           [:assign [:Aname "b"] [:D "10"]]]
-         [:else [:flines [:assign [:Aname "b"] [:D "20"]]]]]
+         [:else [:assign [:Aname "b"] [:D "20"]]]]
         [:A [:Rname "a"] [:Rname "b"]]]
     "if 0:\n  if 0:\n    a=1\n  else:\n    a=2\n    b=10\nelse:\n  b=20\na+b"
     [:S [:if
          [:D "0"]
-         [:flines
+         [:S
           [:if [:D "0"]
-           [:flines [:assign [:Aname "a"] [:D "1"]]]
-           [:else [:flines [:assign [:Aname "a"] [:D "2"]]
-                           [:assign [:Aname "b"] [:D "10"]]]]]]
-         [:else [:flines [:assign [:Aname "b"] [:D "20"]]]]]
+           [:S [:assign [:Aname "a"] [:D "1"]]]
+           [:else [:assign [:Aname "a"] [:D "2"]]
+                  [:assign [:Aname "b"] [:D "10"]]]]]
+         [:else [:assign [:Aname "b"] [:D "20"]]]]
         [:A [:Rname "a"] [:Rname "b"]]]
     ))
