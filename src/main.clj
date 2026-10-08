@@ -38,7 +38,7 @@
 
 (def new-gram
   (insta/parser
-    "S = (INDENT) (if | else | defn | assign | return | exp | Q )
+    "S = (INDENT) (if | else | defn | assign | return | exp | Q | Epsilon)
     INDENT = '  '*
     if = <'if '> <W*> exp <W*> <':'> <W*>
     else = <'else'> <W*> <':'> <W*>
@@ -78,6 +78,7 @@
             [_ INDENT sub-tree] (new-gram l)
             this-indent (dec (count INDENT))]
         (cond
+          (nil? sub-tree) (recur (rest lines) block)
           (< this-indent indent-lvl) [lines (dec indent-lvl) block]
           (= this-indent indent-lvl)
           (case (first sub-tree)
